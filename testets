@@ -1,9 +1,2 @@
-Scopes will be defined in Swagger file for Webform Email Api to control application to allow/deny Api. The Swagger file will be updated with the scope related security schemes and same scope will be configured by consumers to access the API as shown in Figure 2 .
-The new scope is created as “u-440:webForm:c”  which  is passed in swagger under security:default: scopes section.
-Once the swagger file is published in Api Gateway ,any Webform request which will come firstly the scope would be checked in the apigateway whether it is containing “u-440:webForm:c” .If the request is having this scope then the request will reach to GMS
-
-
-
-ecurity scopes for the Webform Email API will be defined in the Swagger file to regulate application access to the API, allowing or denying requests. The Swagger file will undergo updates to include security schemes related to scopes. Consumers will configure the same scope, “u-440:webForm:c,” to access the API, as illustrated in Figure 2. This new scope is added to the Swagger file under “security:default: scopes” section.
-
-Once the Swagger file is published in the API Gateway, any incoming Webform request will first have its scope checked in the API Gateway to verify if it contains “u-440:webForm:c.” If the request includes this scope, it will proceed to reach GMS.
+The request for the Webform will be submitted from the MFE portal. The collected information from user in the form of Webform will be send to BFF application.
+In the BFF application the collected information is further processed and REST request will get created which will be send to GMS via a API gateway. The request will be having user data and some additional parameters. Once the request is validated to in GMS an interaction will get created as shown in Figure 1.
