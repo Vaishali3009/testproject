@@ -1,4 +1,1 @@
-The request for the Webform will be submitted from the MFE portal. The collected information from user in the form of Webform will be send to BFF application.
-In the BFF application the collected information is further processed and REST request will get created which will be send to GMS via a API gateway. The request will be having user data and some additional parameters. Once the request is validated to in GMS an interaction will get created as shown in Figure 1.
-
-The Webform request is initiated from the MFE portal, and user-collected information through the Webform is transmitted to the BFF application. In the BFF application, the gathered data undergoes additional processing, leading to the creation of a REST request. This request is then sent to GMS through an API gateway, containing both user data and additional parameters. Upon successful validation in GMS, an interaction is generated, as depicted in Figure 1.
+The consumer will need to pass this token in the body where the key will be scope and value will be "u-440:webForm:c"  while generating the access token which will be further passed to call Genesys webform email api .
