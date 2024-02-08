@@ -1,1 +1,6 @@
+Scopes will be defined in Swagger file for Webform Email Api to control application to allow/deny API. The Swagger file will be updated with the scope related security schemes and same scope will be configured by consumers to access the API as shown in Figure 2.
+The new scope is created as “u-440:webForm:c”  which  is passed in swagger under security:default: scopes section.
+Once the swagger file is published in API Gateway, any Webform request which will come firstly the scope would be checked in the API  Gateway whether it is containing “u-440:webForm:c” .If the request is having this scope then the request will reach to GMS.
+
+
 The consumer will need to pass this token in the body where the key will be scope and value will be "u-440:webForm:c"  while generating the access token which will be further passed to call Genesys webform email api .
