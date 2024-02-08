@@ -4,3 +4,9 @@ Once the swagger file is published in API Gateway, any Webform request which wil
 
 
 The consumer will need to pass this token in the body where the key will be scope and value will be "u-440:webForm:c"  while generating the access token which will be further passed to call Genesys webform email api .
+
+
+
+
+
+To access the Genesys webform email API, consumers must include the specified scope when generating an authentication token. The scope should be provided in the body, with the key set as "scope" and the value as "u-440:webForm:c" during the access token generation process. Subsequently, when the request reaches the API gateway for an authentication token, the scope value is examined against the request. If there is a match, the token will be sent in the response and can be utilized to invoke the GMS webform email API.
