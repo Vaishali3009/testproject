@@ -1,86 +1,62 @@
-plugins {
-    id 'java'
-    id 'maven'
-    id 'eclipse'
-    id 'maven-publish'
-}
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-version = '1.1.0-SNAPSHOT'
-group = 'de.telefonica.cct.ccc.shared'
-sourceCompatibility = '1.8'
+    <groupId>de.telefonica.cct.ccc.shared</groupId>
+    <artifactId>your-artifact-id</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
+    
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
 
-gradle.startParameter.showStacktrace = org.gradle.api.logging.configuration.ShowStacktrace.ALWAYS
+    <repositories>
+        <repository>
+            <id>ccc-releases</id>
+            <url>https://dot-portal.de.pri.o2.com/nexus/repository/ccc-releases</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>tef-public</id>
+            <url>https://dot-portal.de.pri.o2.com/nexus/repository/public</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
-sourceSets {
-    main {
-        java {
-            srcDir 'src/'
-        }
-    }
-}
+    <dependencies>
+        <dependency>
+            <groupId>com.genesyslab.platform</groupId>
+            <artifactId>commons</artifactId>
+            <version>852.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.genesyslab.platform</groupId>
+            <artifactId>managementprotocol</artifactId>
+            <version>852.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.genesyslab.platform</groupId>
+            <artifactId>protocol</artifactId>
+            <version>852.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 
-apply from: 'credentials.gradle'
-repositories {
-    maven{
-    	name = 'ccc-releases'
-    	url = "https://dot-portal.de.pri.o2.com/nexus/repository/ccc-releases"
-		metadataSources {
-			mavenPom()
-			artifact()
-		}
-    }
-    maven{
-    	name = 'tef-public'
-    	url = "https://dot-portal.de.pri.o2.com/nexus/repository/public"
-		metadataSources {
-			mavenPom()
-			artifact()
-		}
-    }
-}
-
-
-
-dependencies {
-    implementation 'com.genesyslab.platform:commons:852.0.3'
-    implementation 'com.genesyslab.platform:managementprotocol:852.0.3'
-    implementation 'com.genesyslab.platform:protocol:852.0.3'
-    compile group: 'log4j', name: 'log4j', version: '1.2.17'
-}
-
-
-def setCredentials() {
-    if(project.hasProperty('user') &&  project.getProperty('user') != null){		
-        ext.username = project.getProperty('user')
-    }else{
-        ext.username =  System.getenv('user').toString()
-    }
-    if(project.hasProperty('password') &&  project.getProperty('password') != null){
-        ext.password = project.getProperty('password')
-    }else{
-        ext.password =  System.getenv('password').toString()
-    }
-    rootProject.ext.set('User', ext.username)
-    rootProject.ext.set('Password', ext.password)
-}
-
-
-test {
-    useJUnitPlatform()
-    maxHeapSize = '1G'
-}
-
-/*publishing {
-    publications {
-        maven(MavenPublication) {
-            artifact("build/libs/LocalControlAgentConnector-$version"+".jar") {
-                extension 'jar'
-            }}}
-    repositories {
-        maven {
-            name 'tef-snapshots'            
-            url "https://dot-portal.de.pri.o2.com/nexus/content/groups/cct-snapshots"
-            credentials {
-                username nexusUser
-                password nexusPassword
-            }}}}*/
+</project>
