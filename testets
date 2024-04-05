@@ -1,171 +1,157 @@
- package com.gitlab.test.gitlabmembers.service;
 
-import org.apache.poi.ss.usermodel.*; 
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.http.HttpMethod;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
+package de.icx.conn.whatsapphub.rest;
+
+import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 
-@Service
-public class MemberService {
+import org.apache.log4j.Logger;
 
-	private static final String PRIVATE_TOKEN = "glpat-sBJ36gPL6axMRKst6UVd";
-	private static final String GITLAB_API_URL = "https://dot-portal.de.pri.o2.com/gitlab/api/v4";
-	private static Sheet sheet ;
-	
-	public List<Map<String, Object>> getGroupMembers(int groupId,String filePath) throws IOException { 
-		String url = GITLAB_API_URL + "/groups/" + groupId + "/members?private_token=" + PRIVATE_TOKEN;
+import de.icx.common.Json;
+import de.icx.common.LogFilter.Logged;
+import de.icx.common.basics.Common;
+import de.icx.conn.whatsapphub.Storage;
+import de.icx.conn.whatsapphub.WCL;
+import de.icx.conn.whatsapphub.objects.Contact;
+import de.icx.conn.whatsapphub.objects.Error;
+import de.icx.conn.whatsapphub.objects.Message;
+import de.icx.conn.whatsapphub.objects.Notification;
+import de.icx.conn.whatsapphub.objects.Status;
+import de.icx.conn.whatsapphub.objects.X4pAuthHeader;
+import de.icx.conn.whatsapphub.objects.X4pAuthHeader.AuthInfo;
 
-		List<Map<String, Object>> members = fetchData(url); 
-		exportMembersToExcel(members,filePath,groupId); // Append members to file
-		
-		/*To fetch Subgroups inside that group*/
-		List<Map<String, Object>> submembers=getSubgroupMembers(groupId);
-		if(submembers!=null)
-		{
-			exportMembersToExcel(submembers,filePath,groupId); // Append members to file
+@Path("/webhook")
+public class Webhook extends Common {
+
+	// Statics
+
+	static Logger log = Logger.getLogger(Webhook.class);
+
+	// Services
+
+	@SuppressWarnings("static-method")
+	@Logged
+	@POST
+	@Path("{businessphone}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void webhook(@PathParam("businessphone") String businessPhone, String jsonNotification, @Context HttpServletRequest servletRequest) {
+
+		try {
+			// 4th platform authentication header
+
+			String jsonAuthHeader = "{\"auth_infos\": " + servletRequest.getHeader(X4pAuthHeader.X_4P_AUTHENTICATION_HEADER) + "}";
+			X4pAuthHeader x4pAuthHeader = Json.unmarshal(X4pAuthHeader.class, jsonAuthHeader, false, log);
+			jsonAuthHeader = Json.marshal(x4pAuthHeader, false, log);
+			if (log.isDebugEnabled())
+				log.debug("WAH: X4P authentication header:\n" + jsonAuthHeader);
+
+			Map<String, AuthInfo> authInfoMap = new HashMap<>();
+			if (x4pAuthHeader.auth_infos != null)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     {
+				for (AuthInfo authInfo : x4pAuthHeader.auth_infos) {
+					authInfoMap.put(authInfo.wa_id, authInfo);
+				}
+			}
+
+			// Notification object
+
+			Notification notification = Json.unmarshal(Notification.class, jsonNotification, false, log);
+			if (log.isDebugEnabled()) {
+				log.debug("WAH: Webhook notification received:\n" + Json.marshal(notification, false, log));
+			}
+			else {
+				log.info("WAH: Webhook notification received. Contains " + (notification.messages != null ? notification.messages.size() : "0") + " message(s), "
+						+ (notification.statuses != null ? notification.statuses.size() : "0") + " status(s), " + (notification.errors != null ? notification.errors.size() : "0") + " error(s)");
+			}
+
+			// Store elements contained in notifications including 4th platform authentication info for messages and contacts
+
+			if (isEmpty(businessPhone)) {
+				if (WCL.businessPhones.size() > 0) { // Default business phone
+					businessPhone = WCL.businessPhones.get(0);
+				}
+				else {
+					log.error("WAH: Missing path param {businessphone} and no business phone configured in 'whatsapp.properties' for environment '" + WCL.environment + "'. Unable to receive message");
+					throw new WebApplicationException("bad request", 400);
+				}
+			}
+
+			if (notification.messages != null) {
+				for (Message message : notification.messages) {
+
+					String fromWaId = message.from;
+					if (authInfoMap.containsKey(fromWaId)) {
+						message.auth_info = authInfoMap.get(fromWaId);
+					}
+
+					Storage.addMessage(businessPhone, message);
+				}
+			}
+
+			if (notification.errors != null) {
+				for (Error error : notification.errors) {
+					Storage.addError(businessPhone, error);
+				}
+			}
+
+			if (notification.statuses != null) {
+				for (Status status : notification.statuses) {
+					Storage.addStatus(businessPhone, status);
+				}
+			}
+
+			if (notification.contacts != null) {
+				for (Contact contact : notification.contacts) {
+
+					String waId = contact.wa_id;
+					if (authInfoMap.containsKey(waId)) {
+						contact.auth_info = authInfoMap.get(waId);
+					}
+
+					Storage.addContact(businessPhone, contact);
+				}
+			}
+
+			throw new WebApplicationException("ok", 200); // 200 instead of 204 which is automatically generated on empty response content
 		}
-		
-		return members;
+		catch (WebApplicationException wex) {
+			throw wex;
+		}
+		catch (Throwable t) {
+			log.error("WAH: Thrown " + t);
+			throw new WebApplicationException("bad request", 400);
+		}
 	}
 
-	
+	public static void main(String[] args) {
 
-    public List<Map<String, Object>> getProjectsUnderGroup(int groupId) {
-        String url = GITLAB_API_URL + "/groups/" + groupId + "/projects?private_token=" + PRIVATE_TOKEN;
-        return fetchData(url);
-    }
+		Notification notification = Json.unmarshal(Notification.class,
+				"{\"contacts\":[{\"profile\":{\"name\":\"Tom Prager\"},\"wa_id\":\"4917622274741\"}],\"messages\":[{\"from\":\"4917622274741\",\"id\":\"ABGHSRdiInR0HwIKPrDoZIVMHoIzJg\",\"text\":{\"body\":\"der obige link  funktioniert nicht\"},\"timestamp\":\"1628670090\",\"type\":\"text\"}], \"statuses\":[{\"errors\":[{\"code\":470,\"href\":\"https://developers.facebook.com/docs/whatsapp/api/errors/\",\"title\":\"Message failed to send because more than 24 hours have passed since the customer last replied to this number\"}],\"id\":\"gBGHSRdnRpIEPwIJ9BZkuvzmf_F7\",\"recipient_id\":\"4917674692043\",\"status\":\"failed\",\"timestamp\":\"1646713415\",\"type\":\"message\"}]}",
+				false, log);
 
-    public List<Map<String, Object>> getAllProjectMembers(int groupId,String filePath) {
-        List<Map<String, Object>> projects = getProjectsUnderGroup(groupId);
-        List<Map<String, Object>> projectMembers=null;
-        for (Map<String, Object> project : projects) {
-            // Get project ID
-            int projectId = (int) project.get("id");
-            // Fetch members for the current project
-            projectMembers = getProjectMembers(projectId);
-            exportMembersToExcel(projectMembers,filePath,groupId); 
-        }
-        return projects; // Modify this method as per your requirements
-    }
+		log.info("WAH: Webhook notification received:\n" + Json.marshal(notification, false, log));
 
-    private List<Map<String, Object>> getProjectMembers(int projectId) {
-        String url = GITLAB_API_URL + "/projects/" + projectId + "/members?private_token=" + PRIVATE_TOKEN;
-        return fetchData(url);
-    }
+		log.info("WAH: Webhook notification received. Contains " + (notification.messages != null ? notification.messages.size() : "0") + " message(s), "
+				+ (notification.statuses != null ? notification.statuses.size() : "0") + " status(s), " + (notification.errors != null ? notification.errors.size() : "0") + " error(s)");
 
+		String businessPhone = null;
 
-	public List<Map<String, Object>> getSubgroupMembers(int groupId) {
-		String url = GITLAB_API_URL + "/groups/" + groupId + "/subgroups?private_token=" + PRIVATE_TOKEN;
-		// You need to iterate over subgroups and fetch members, I'll leave this part as an exercise for you
-		return null;
-	}
-
-	public List<Map<String, Object>> getProjectMembers(int groupId,String filePath) {
-		String url = GITLAB_API_URL + "/groups/" + groupId + "/projects?private_token=" + PRIVATE_TOKEN;
-
-		List<Map<String, Object>> members = fetchData(url); 
-	//	exportMembersToExcel(members,filePath,groupId); // Append members to file
-		return members;
-	}
-
-    private void exportMembersToExcel(List<Map<String, Object>> members, String filePath,int groupId) {
-    	try (Workbook workbook = openWorkbook(filePath)) {
-            Sheet sheet = getOrCreateSheet(workbook, "Members3");
-            
-            // Fill data rows
-            int rowNum = sheet.getLastRowNum() + 1; // Get the next row number to append data
-            for (Map<String, Object> member : members) {
-                Row row = sheet.createRow(rowNum++);
-                row.createCell(0).setCellValue((String) member.get("name"));
-                row.createCell(1).setCellValue((String) member.get("state"));
-                row.createCell(2).setCellValue((String) member.get("membership_status"));
-                row.createCell(3).setCellValue((String) member.get("created_at"));
-            }
-
-            // Write the workbook to the file
-            try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
-                workbook.write(fileOut);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("exception is "+e);
-        }
-    }
-
-    private Workbook openWorkbook(String filePath) throws IOException {
-        File file = new File(filePath);
-        Workbook workbook;
-        if (file.exists()) {
-            workbook = WorkbookFactory.create(file);
-        } else {
-            workbook = new XSSFWorkbook();
-        }
-        return workbook;
-    }
-
-    private Sheet getOrCreateSheet(Workbook workbook, String sheetName) {
-        Sheet sheet = workbook.getSheet(sheetName);
-        if (sheet == null) {
-            sheet = workbook.createSheet(sheetName);
-            Row headerRow = sheet.createRow(0);
-            headerRow.createCell(0).setCellValue("Name");
-            headerRow.createCell(1).setCellValue("State");
-            headerRow.createCell(2).setCellValue("Membership Status");
-            headerRow.createCell(3).setCellValue("Created At");
-        }
-        return sheet;
-    }
-
-
-	/*public void exportMembersToExcel(List<Map<String, Object>> members, String filePath,int groupId) throws IOException {
-		Workbook workbook = new XSSFWorkbook();
-		Sheet sheet = workbook.createSheet("Members");
-
-		// Create header row
-		Row headerRow = sheet.createRow(0);
-		headerRow.createCell(0).setCellValue("Name");
-		headerRow.createCell(1).setCellValue("Status");
-
-		// Fill data rows
-		int rowNum = 1;
-		for (Map<String, Object> member : members) {
-			Row row = sheet.createRow(rowNum++);
-			row.createCell(0).setCellValue(groupId);
-			row.createCell(0).setCellValue((Integer) member.get("id"));
-			row.createCell(1).setCellValue((String) member.get("name"));
-			row.createCell(2).setCellValue((String) member.get("state"));
-			row.createCell(3).setCellValue((String) member.get("membership_state"));
-			row.createCell(4).setCellValue((String) member.get("created_at"));
+		for (int i = 0; i < 1000; i++) {
+			for (Message message : notification.messages) {
+				businessPhone = message.from;
+				Storage.addMessage(businessPhone, message);
+			}
 		}
 
-		// Write the workbook to a file
-		try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
-			workbook.write(fileOut);
+		for (Status status : notification.statuses) {
+			Storage.addStatus(businessPhone, status);
 		}
-
-		workbook.close();
-	}
-*/
-	private List<Map<String, Object>> fetchData(String url) {
-		RestTemplate restTemplate = new RestTemplate();
-		ResponseEntity<List<Map<String, Object>>> responseEntity = restTemplate.exchange(url, HttpMethod.GET, null,
-				new ParameterizedTypeReference<List<Map<String, Object>>>() {});
-		return responseEntity.getBody();
 	}
 }
