@@ -1,157 +1,35 @@
 
-package de.icx.conn.whatsapphub.rest;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-
-import org.apache.log4j.Logger;
-
-import de.icx.common.Json;
-import de.icx.common.LogFilter.Logged;
-import de.icx.common.basics.Common;
-import de.icx.conn.whatsapphub.Storage;
-import de.icx.conn.whatsapphub.WCL;
-import de.icx.conn.whatsapphub.objects.Contact;
-import de.icx.conn.whatsapphub.objects.Error;
-import de.icx.conn.whatsapphub.objects.Message;
-import de.icx.conn.whatsapphub.objects.Notification;
-import de.icx.conn.whatsapphub.objects.Status;
-import de.icx.conn.whatsapphub.objects.X4pAuthHeader;
-import de.icx.conn.whatsapphub.objects.X4pAuthHeader.AuthInfo;
-
-@Path("/webhook")
-public class Webhook extends Common {
+@Path("/contacts")
+public class Contacts extends Common {
 
 	// Statics
 
-	static Logger log = Logger.getLogger(Webhook.class);
+	static Logger log = Logger.getLogger(Contacts.class);
 
 	// Services
 
 	@SuppressWarnings("static-method")
 	@Logged
-	@POST
-	@Path("{businessphone}")
-	@Consumes(MediaType.APPLICATION_JSON)
-	public void webhook(@PathParam("businessphone") String businessPhone, String jsonNotification, @Context HttpServletRequest servletRequest) {
+	@GET
+	@Path("{businessphone}/{whatsappid}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getContact(@PathParam("businessphone") String businessPhone, @PathParam("whatsappid") String whatsappId) {
 
-		try {
-			// 4th platform authentication header
-
-			String jsonAuthHeader = "{\"auth_infos\": " + servletRequest.getHeader(X4pAuthHeader.X_4P_AUTHENTICATION_HEADER) + "}";
-			X4pAuthHeader x4pAuthHeader = Json.unmarshal(X4pAuthHeader.class, jsonAuthHeader, false, log);
-			jsonAuthHeader = Json.marshal(x4pAuthHeader, false, log);
-			if (log.isDebugEnabled())
-				log.debug("WAH: X4P authentication header:\n" + jsonAuthHeader);
-
-			Map<String, AuthInfo> authInfoMap = new HashMap<>();
-			if (x4pAuthHeader.auth_infos != null)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     {
-				for (AuthInfo authInfo : x4pAuthHeader.auth_infos) {
-					authInfoMap.put(authInfo.wa_id, authInfo);
-				}
-			}
-
-			// Notification object
-
-			Notification notification = Json.unmarshal(Notification.class, jsonNotification, false, log);
-			if (log.isDebugEnabled()) {
-				log.debug("WAH: Webhook notification received:\n" + Json.marshal(notification, false, log));
-			}
-			else {
-				log.info("WAH: Webhook notification received. Contains " + (notification.messages != null ? notification.messages.size() : "0") + " message(s), "
-						+ (notification.statuses != null ? notification.statuses.size() : "0") + " status(s), " + (notification.errors != null ? notification.errors.size() : "0") + " error(s)");
-			}
-
-			// Store elements contained in notifications including 4th platform authentication info for messages and contacts
-
-			if (isEmpty(businessPhone)) {
-				if (WCL.businessPhones.size() > 0) { // Default business phone
-					businessPhone = WCL.businessPhones.get(0);
-				}
-				else {
-					log.error("WAH: Missing path param {businessphone} and no business phone configured in 'whatsapp.properties' for environment '" + WCL.environment + "'. Unable to receive message");
-					throw new WebApplicationException("bad request", 400);
-				}
-			}
-
-			if (notification.messages != null) {
-				for (Message message : notification.messages) {
-
-					String fromWaId = message.from;
-					if (authInfoMap.containsKey(fromWaId)) {
-						message.auth_info = authInfoMap.get(fromWaId);
-					}
-
-					Storage.addMessage(businessPhone, message);
-				}
-			}
-
-			if (notification.errors != null) {
-				for (Error error : notification.errors) {
-					Storage.addError(businessPhone, error);
-				}
-			}
-
-			if (notification.statuses != null) {
-				for (Status status : notification.statuses) {
-					Storage.addStatus(businessPhone, status);
-				}
-			}
-
-			if (notification.contacts != null) {
-				for (Contact contact : notification.contacts) {
-
-					String waId = contact.wa_id;
-					if (authInfoMap.containsKey(waId)) {
-						contact.auth_info = authInfoMap.get(waId);
-					}
-
-					Storage.addContact(businessPhone, contact);
-				}
-			}
-
-			throw new WebApplicationException("ok", 200); // 200 instead of 204 which is automatically generated on empty response content
+		String jsonContact = Json.marshal(Storage.getContact(businessPhone, whatsappId), true, log);
+		if (isEmpty(jsonContact)) {
+			log.info("WAH: No contact available for whatsapp id '" + whatsappId + "'");
 		}
-		catch (WebApplicationException wex) {
-			throw wex;
+		else {
+			log.info("WAH: Supplied contact for whatsapp id '" + whatsappId + "': " + jsonContact);
 		}
-		catch (Throwable t) {
-			log.error("WAH: Thrown " + t);
-			throw new WebApplicationException("bad request", 400);
-		}
+
+		return jsonContact;
 	}
 
-	public static void main(String[] args) {
-
-		Notification notification = Json.unmarshal(Notification.class,
-				"{\"contacts\":[{\"profile\":{\"name\":\"Tom Prager\"},\"wa_id\":\"4917622274741\"}],\"messages\":[{\"from\":\"4917622274741\",\"id\":\"ABGHSRdiInR0HwIKPrDoZIVMHoIzJg\",\"text\":{\"body\":\"der obige link  funktioniert nicht\"},\"timestamp\":\"1628670090\",\"type\":\"text\"}], \"statuses\":[{\"errors\":[{\"code\":470,\"href\":\"https://developers.facebook.com/docs/whatsapp/api/errors/\",\"title\":\"Message failed to send because more than 24 hours have passed since the customer last replied to this number\"}],\"id\":\"gBGHSRdnRpIEPwIJ9BZkuvzmf_F7\",\"recipient_id\":\"4917674692043\",\"status\":\"failed\",\"timestamp\":\"1646713415\",\"type\":\"message\"}]}",
-				false, log);
-
-		log.info("WAH: Webhook notification received:\n" + Json.marshal(notification, false, log));
-
-		log.info("WAH: Webhook notification received. Contains " + (notification.messages != null ? notification.messages.size() : "0") + " message(s), "
-				+ (notification.statuses != null ? notification.statuses.size() : "0") + " status(s), " + (notification.errors != null ? notification.errors.size() : "0") + " error(s)");
-
-		String businessPhone = null;
-
-		for (int i = 0; i < 1000; i++) {
-			for (Message message : notification.messages) {
-				businessPhone = message.from;
-				Storage.addMessage(businessPhone, message);
-			}
-		}
-
-		for (Status status : notification.statuses) {
-			Storage.addStatus(businessPhone, status);
-		}
-	}
 }
+
+
+
+----------------------------------------***************************----------------------------------
+
+
