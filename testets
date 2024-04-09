@@ -1,3 +1,5 @@
+package de.icx.conn.whatsapphub.rest;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +28,6 @@ import de.icx.conn.whatsapphub.objects.X4pAuthHeader;
 import de.icx.conn.whatsapphub.objects.X4pAuthHeader.AuthInfo;
 
 @Path("/webhook")
-
 public class Webhook extends Common {
 
 	// Statics
