@@ -115,7 +115,13 @@ public class WCL extends Common implements ServletContextListener {
 					Token token = Json.unmarshal(Token.class, ri.content, false, log);
 					log.info("WCL: Token '" + token.access_token + "' received for '" + businessPhone + "'");
 					bearerAuthHeaderMapByBusinessPhoneMap.put(businessPhone, CMap.newStringStringMap(AUTHORIZATION, BEARER + token.access_token, "x-correlator", "WA4P-hub"));
+					/*
+					 *Changes for Auth token generation:-
+					 
+					 bearerAuthHeaderMapByBusinessPhoneMap.put(businessPhone, CMap.newStringStringMap(AUTHORIZATION, BEARER + generateToken(), "x-correlator", "WA4P-hub"));
 
+					 
+					 */
 					// Sleep until session times out to force session refresh
 					int sleepTime = token.expires_in - 60;
 					log.info("WCL: Sleep " + sleepTime + " seconds until session refresh (for '" + businessPhone + "') ...");
@@ -135,6 +141,11 @@ public class WCL extends Common implements ServletContextListener {
 			log.info("WCL: Whatsapp session management thread for '" + businessPhone + "' ended");
 
 			MDC.clear();
+		}
+		public String generateToken()
+		{
+			
+			
 		}
 	}
 
