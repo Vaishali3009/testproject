@@ -1,0 +1,27 @@
+package com.rbs.bdd.domain.soap.api;
+
+import com.rbs.bdd.application.port.in.ValidateArrangementForPaymentPort;
+import com.rbs.bdd.generated.ValidateArrangementForPaymentRequest;
+import com.rbs.bdd.generated.ValidateArrangementForPaymentResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.ws.server.endpoint.annotation.Endpoint;
+import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
+import org.springframework.ws.server.endpoint.annotation.RequestPayload;
+import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
+
+@Endpoint
+@RequiredArgsConstructor
+public class ValidateArrangementForPaymentEndpoint {
+
+    private static final String NAMESPACE_URI = "http://com/rbsq/soa/CO4PaymentManagement/ArrValidationForPaymentParameters/V01/";
+
+    private final ValidateArrangementForPaymentPort service;
+
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "ValidateArrangementForPayment")
+    @ResponsePayload
+    public ValidateArrangementForPaymentResponse handleRequest(
+            @RequestPayload ValidateArrangementForPaymentRequest request) {
+
+        return service.processRequestSync(request);
+    }
+}
