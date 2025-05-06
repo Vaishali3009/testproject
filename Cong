@@ -1,0 +1,45 @@
+confirg
+
+
+package com.rbs.bdd.config.v1;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import javax.xml.XMLConstants;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import java.io.File;
+
+@Configuration
+public class SchemaConfig {
+
+    @Bean
+    public Schema schema() throws Exception {
+        SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        return schemaFactory.newSchema(new File("src/main/resources/xsd/ArrValidationForPaymentParameters.xsd"));
+    }
+}
+
+
+
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.ws.soap.server.endpoint.SoapFaultMappingExceptionResolver;
+import org.springframework.ws.soap.SoapFaultDefinition;
+
+@Configuration
+public class SoapFaultConfig {
+
+    @Bean
+    public SoapFaultMappingExceptionResolver exceptionResolver() {
+        SoapFaultMappingExceptionResolver resolver = new SoapFaultMappingExceptionResolver();
+        resolver.setDefaultFault(SoapFaultDefinition.SERVER);  // Maps exceptions to SOAP fault
+        resolver.setOrder(1);
+        return resolver;
+    }
+}
+
+
+
