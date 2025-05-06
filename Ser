@@ -1,0 +1,59 @@
+package com.rbs.bdd.application.service;
+
+import com.rbs.bdd.application.exception.EPCValidationException;
+import com.rbs.bdd.application.port.in.ValidateArrangementForPaymentPort;
+import com.rbs.bdd.generated.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.Validator;
+import java.io.StringReader;
+import java.io.StringWriter;
+
+@Service
+@RequiredArgsConstructor
+public class ValidateArrangementForPaymentService implements ValidateArrangementForPaymentPort {
+
+    private final Schema schema;  // Injected Schema bean
+
+    @Override
+    public ValidateArrangementForPaymentResponse processRequestSync(ValidateArrangementForPaymentRequest request) {
+        try {
+            // Optional: Validate against XSD
+            String xmlString = marshalToXml(request);
+            validateSchema(xmlString);
+
+            // Build hardcoded SOAP response
+            ValidateArrangementForPaymentResponse response = new ValidateArrangementForPaymentResponse();
+            ValidateArrangementForPaymentContent content = new ValidateArrangementForPaymentContent();
+
+            ResponseHeader header = new ResponseHeader();
+            header.setOperatingBrand("RBS");
+            header.setCmdStatus(CommandResponseCmdStatus.SUCCEEDED);
+
+            content.setResponseHeader(header);
+            response.setResponse(content);
+
+            return response;
+        } catch (Exception e) {
+            throw new EPCValidationException("SCHEMA_VALIDATION_ERROR", "Schema validation failed: " + e.getMessage());
+        }
+    }
+
+    private String marshalToXml(ValidateArrangementForPaymentRequest request) throws Exception {
+        JAXBContext jaxbContext = JAXBContext.newInstance(ValidateArrangementForPaymentRequest.class);
+        Marshaller marshaller = jaxbContext.createMarshaller();
+        StringWriter writer = new StringWriter();
+        marshaller.marshal(request, writer);
+        return writer.toString();
+    }
+
+    private void validateSchema(String xml) throws Exception {
+        Validator validator = schema.newValidator();
+        validator.validate(new StreamSource(new StringReader(xml)));
+    }
+}
