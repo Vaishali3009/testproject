@@ -1,23 +1,58 @@
-soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v01="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/">
-   <soapenv:Header/>
-   <soapenv:Body>
-      <v01:validateArrangementForPayment>
-         <requestHeader>
-            <operatingBrand>ALL</operatingBrand>
-            <!--Zero or more repetitions:-->
-            <requestIds>
-               <systemId>RequestID</systemId>
-               <transactionId>123456789</transactionId>
-            </requestIds>
-            <cmdType>Request</cmdType>
-         </requestHeader>
-         <arrangementIdentifier>
-            <identifier>60730104057015</identifier>
-            <context>
-               <schemeName>ArrangementEnterpriseIdType</schemeName>
-               <codeValue>UKBasicBankAccountNumber</codeValue>
-            </context>
-         </arrangementIdentifier>
-      </v01:validateArrangementForPayment>
-   </soapenv:Body>
-</soapenv:Envelope>
+<?xml version="1.0" encoding="UTF-8"?><wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" name="ArrValidationForPayment" targetNamespace="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:documentation>[generationDate='2021-05-26 10:54:53 AM']
+[generator info ='rbs.transformation.extension.uml2wsdlxsd,0.9.0.18']</wsdl:documentation>
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/" xmlns:avfpSP="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01/">
+      <xsd:import namespace="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01/" schemaLocation="ArrValidationForPaymentParameters.xsd"/>
+      <xsd:element name="validateArrangementForPayment" type="avfpSP:validateArrangementForPaymentRequest"/>
+      <xsd:element name="validateArrangementForPaymentResponse" type="avfpSP:validateArrangementForPaymentResponse"/>
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="validateArrangementForPaymentRequest">
+    <wsdl:part element="tns:validateArrangementForPayment" name="parameters"/>
+  </wsdl:message>
+  <wsdl:message name="validateArrangementForPaymentResponse">
+    <wsdl:part element="tns:validateArrangementForPaymentResponse" name="parameters"/>
+  </wsdl:message>
+  <wsdl:portType name="IArrValidationForPayment">
+    <wsdl:documentation>This service supports the activities necessary for the financial institution to administer a payment instruction received from a customer. This capability may have the operations to performs the required validations to ensure the financial institution can accept the instruction.  </wsdl:documentation>
+    <wsdl:operation name="validateArrangementForPayment">
+      <wsdl:documentation>This operation performs the required source validations to ensure the financial institution can accept the instruction. </wsdl:documentation>
+      <wsdl:input message="tns:validateArrangementForPaymentRequest"/>
+      <wsdl:output message="tns:validateArrangementForPaymentResponse"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="IArrValidationForPaymentHTTPBinding" type="tns:IArrValidationForPayment">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="validateArrangementForPayment">
+      <soap:operation soapAction="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/validateArrangementForPayment/"/>
+      <wsdl:input>
+        <soap:body parts="parameters" use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body parts="parameters" use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="IArrValidationForPaymentJMSBinding" type="tns:IArrValidationForPayment">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/jms"/>
+    <wsdl:operation name="validateArrangementForPayment">
+      <soap:operation soapAction="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/validateArrangementForPayment/"/>
+      <wsdl:input>
+        <soap:body parts="parameters" use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body parts="parameters" use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="ArrValidationForPayment">
+    <wsdl:documentation>[serviceVersion='ALL_20210526_Baseline']</wsdl:documentation>
+    <wsdl:port binding="tns:IArrValidationForPaymentHTTPBinding" name="IArrValidationForPaymentPortHTTP_ALL_X">
+      <soap:address location="http://0.0.0.0:3001/ALL/ARRVALPYMT040/01"/>
+    </wsdl:port>
+    <wsdl:port binding="tns:IArrValidationForPaymentJMSBinding" name="ARRVALPYMT040_01.ALL.X_D_H">
+      <soap:address location="dpmq:/ARRVALPYMT040_01_FSH?RequestQueue=ARRVALPYMT040_01.ALL.X_D.REQ;ReplyQueue=ARRVALPYMT040_01.ALL.D_X.RESP"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
