@@ -1,5 +1,5 @@
 This XML file does not appear to have any style information associated with it. The document tree is shown below.
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:sch0="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01/" xmlns:sch1="http://com/rbsg/soa/DataTypes/PrimitiveDataTypes/V03/" xmlns:sch2="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/TransferObjects/V01/" xmlns:sch3="http://com/rbsg/soa/Services/Definitions/V03/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01/" targetNamespace="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01/">
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:sch0="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01/" xmlns:sch1="http://com/rbsg/soa/DataTypes/PrimitiveDataTypes/V03/" xmlns:sch2="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/TransferObjects/V01/" xmlns:sch3="http://com/rbsg/soa/Services/Definitions/V03/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/" targetNamespace="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/">
 <wsdl:types>
 <xsd:schema xmlns:avfpSP="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01/" xmlns:avfpTO="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/TransferObjects/V01/" xmlns:pdt="http://com/rbsg/soa/DataTypes/PrimitiveDataTypes/V03/" xmlns:sdef="http://com/rbsg/soa/Services/Definitions/V03/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01/">
 <xsd:import namespace="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/TransferObjects/V01/"/>
@@ -1208,7 +1208,7 @@ This XML file does not appear to have any style information associated with it. 
 </wsdl:binding>
 <wsdl:service name="IArrValidationForPaymentService">
 <wsdl:port binding="tns:IArrValidationForPaymentSoap11" name="IArrValidationForPaymentSoap11">
-<soap:address location="http://localhost:8080/ws/updateContact"/>
+<soap:address location="http://localhost:8080/ws"/>
 </wsdl:port>
 </wsdl:service>
 </wsdl:definitions>
