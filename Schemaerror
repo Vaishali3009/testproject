@@ -1,14 +1,5 @@
-     // Implement your business logic here
-        System.out.println("Endpoint called");
-       // QName name = new QName( "validateArrangementForPaymentRequest");
-        ValidateArrangementForPaymentResponse response = new ValidateArrangementForPaymentResponse();
-
-        // Populate the response object
-        ValidateArrangementForPaymentContent content = new ValidateArrangementForPaymentContent();
-        ResponseHeader header = new ResponseHeader();
-        header.setOperatingBrand("NBS");
-        // header.set
-        content.setResponseHeader(header);
-        response.setResponse(content);
-        // return response;
-        return createJaxbElement(response, ValidateArrangementForPaymentResponse.class);
+  private <T> JAXBElement<T> createJaxbElement(T object, Class<T> clazz) {
+        return new JAXBElement<>(new QName(clazz.getSimpleName()), clazz, object);
+      }  private <T> JAXBElement<T> createJaxbElement(T object, Class<T> clazz) {
+        return new JAXBElement<>(new QName(clazz.getSimpleName()), clazz, object);
+      }
