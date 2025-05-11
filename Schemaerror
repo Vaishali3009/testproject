@@ -1,35 +1,42 @@
-
-@Endpoint
-@RequiredArgsConstructor
-public class PaymentValidationSoapAdapter {
-
-    private static final String NAMESPACE_URI = "http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01";
-
-    private final PaymentValidationPort paymentValidationPort;
-
-    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "ValidateArrangementForPaymentRequest")
-    @ResponsePayload
-    public JAXBElement<ValidateArrangementForPaymentResponse> validateArrangementForPayment(@RequestPayload JAXBElement<ValidateArrangementForPaymentRequest> request) {
-       // return paymentValidationPort.validateArrangementForPayment(request);
-        // Implement your business logic here
-        System.out.println("Endpoint called");
-        // QName name = new QName( "validateArrangementForPaymentRequest");
-        ValidateArrangementForPaymentResponse response = new ValidateArrangementForPaymentResponse();
-
-        // Populate the response object
-        ValidateArrangementForPaymentContent content = new ValidateArrangementForPaymentContent();
-        ResponseHeader header = new ResponseHeader();
-        header.setOperatingBrand("NBS");
-        // header.set
-        content.setResponseHeader(header);
-        response.setResponse(content);
-        // return response;
-        return createJaxbElement(response, ValidateArrangementForPaymentResponse.class);
-    }
-
-    private <T> JAXBElement<T> createJaxbElement(T object, Class<T> clazz) {
-        return new JAXBElement<>(new QName(clazz.getSimpleName()), clazz, object);
-    }
-    // Handler for Customer Retrieval to be implemented later
-}
-
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+targetNamespace="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01/" version="RBS_20210526_Baseline" 
+xmlns:avfpSP="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01/" 
+xmlns:avfpTO="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/TransferObjects/V01/" xmlns:pdt="http://com/rbsg/soa/DataTypes/PrimitiveDataTypes/V03/" 
+xmlns:sdef="http://com/rbsg/soa/Services/Definitions/V03/">
+  <xsd:import namespace="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/TransferObjects/V01/" schemaLocation="ArrValidationForPaymentTransferObjects.xsd"/>
+  <xsd:import namespace="http://com/rbsg/soa/DataTypes/PrimitiveDataTypes/V03/" schemaLocation="PrimitiveDatatypes.xsd"/>
+  <xsd:import namespace="http://com/rbsg/soa/Services/Definitions/V03/" schemaLocation="ServiceDefinitions.xsd"/>
+  <xsd:complexType name="validateArrangementForPaymentRequest">
+    <xsd:sequence>
+      <xsd:element name="requestHeader" type="sdef:RequestHeader"/>
+      <xsd:element name="arrangementIdentifier" type="pdt:ObjectReference">
+        <xsd:annotation>
+          <xsd:documentation>The identifier for the arrangement being validated, a variety of formats are supported by the service.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="processingParameter" type="pdt:Property">
+        <xsd:annotation>
+          <xsd:documentation>Optional parameter used to satisfy any consumer driven technical provider requirements</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="ValidateArrangementForPaymentContent">
+    <xsd:sequence>
+      <xsd:element name="responseHeader" type="sdef:ResponseHeader"/>
+      <xsd:element minOccurs="0" name="validatedArrangement" type="avfpTO:ProductArrangement_TO">
+        <xsd:annotation>
+          <xsd:documentation>Details of the arrangement being validated by the service</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="validateArrangementForPaymentResponse">
+    <xsd:sequence>
+      <xsd:choice>
+        <xsd:element name="response" type="avfpSP:ValidateArrangementForPaymentContent"/>
+        <xsd:element name="exception" type="sdef:Exception"/>
+      </xsd:choice>
+    </xsd:sequence>
+  </xsd:complexType>
+</xsd:schema>
