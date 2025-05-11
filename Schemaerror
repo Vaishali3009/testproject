@@ -1,3 +1,12 @@
+
+
+    <!-- Global elements required for WSDL operation binding -->
+    <xsd:element name="validateArrangementForPaymentRequest" type="avfpSP:validateArrangementForPaymentRequest"/>
+    <xsd:element name="validateArrangementForPaymentResponse" type="avfpSP:validateArrangementForPaymentResponse"/>
+
+
+
+
 <?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
 targetNamespace="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01/" version="RBS_20210526_Baseline" 
 xmlns:avfpSP="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01/" 
