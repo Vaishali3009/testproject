@@ -1,51 +1,190 @@
+package com.rbs.bdd.infrastructure.soap.api;
+
+import com.rbs.bdd.application.port.in.PaymentValidationPort;
+import com.rbs.bdd.generated.ResponseHeader;
+import com.rbs.bdd.generated.ValidateArrangementForPaymentContent;
+import com.rbs.bdd.generated.ValidateArrangementForPaymentRequest;
+import com.rbs.bdd.generated.ValidateArrangementForPaymentResponse;
+import jakarta.xml.bind.JAXBElement;
+import lombok.RequiredArgsConstructor;
+import org.springframework.ws.server.endpoint.annotation.Endpoint;
+import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
+import org.springframework.ws.server.endpoint.annotation.RequestPayload;
+import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
+
+import javax.xml.namespace.QName;
+
+@Endpoint
+
+public class PaymentValidationSoapAdapter {
+
+    private static final String NAMESPACE_URI = "http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01";
+
+    public PaymentValidationSoapAdapter(PaymentValidationPort paymentValidationPort) {
+        this.paymentValidationPort = paymentValidationPort;
+    }
+
+    private final PaymentValidationPort paymentValidationPort;
+
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "ValidateArrangementForPayment")
+    @ResponsePayload
+    public ValidateArrangementForPaymentResponse validateArrangementForPayment(@RequestPayload ValidateArrangementForPaymentRequest request) {
+        return paymentValidationPort.validateArrangementForPayment(request);
+    }
+/*
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "ValidateArrangementForPaymentRequest")
+    @ResponsePayload
+    public JAXBElement<ValidateArrangementForPaymentResponse> validateArrangementForPayment(@RequestPayload JAXBElement<ValidateArrangementForPaymentRequest> request) {
+       // return paymentValidationPort.validateArrangementForPayment(request);
+        // Implement your business logic here
+        System.out.println("Endpoint called");
+        // QName name = new QName( "validateArrangementForPaymentRequest");
+        ValidateArrangementForPaymentResponse response = new ValidateArrangementForPaymentResponse();
+
+        // Populate the response object
+        ValidateArrangementForPaymentContent content = new ValidateArrangementForPaymentContent();
+        ResponseHeader header = new ResponseHeader();
+        header.setOperatingBrand("NBS");
+        // header.set
+        content.setResponseHeader(header);
+        response.setResponse(content);
+        // return response;
+        return createJaxbElement(response, ValidateArrangementForPaymentResponse.class);
+    }
+
+    private <T> JAXBElement<T> createJaxbElement(T object, Class<T> clazz) {
+        return new JAXBElement<>(new QName(clazz.getSimpleName()), clazz, object);
+    }
+
+    */
+    // Handler for Customer Retrieval to be implemented later
+}
 
 
-    <!-- Global elements required for WSDL operation binding -->
-    <xsd:element name="validateArrangementForPaymentRequest" type="avfpSP:validateArrangementForPaymentRequest"/>
-    <xsd:element name="validateArrangementForPaymentResponse" type="avfpSP:validateArrangementForPaymentResponse"/>
 
 
 
 
-<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-targetNamespace="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01/" version="RBS_20210526_Baseline" 
-xmlns:avfpSP="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01/" 
-xmlns:avfpTO="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/TransferObjects/V01/" xmlns:pdt="http://com/rbsg/soa/DataTypes/PrimitiveDataTypes/V03/" 
-xmlns:sdef="http://com/rbsg/soa/Services/Definitions/V03/">
-  <xsd:import namespace="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/TransferObjects/V01/" schemaLocation="ArrValidationForPaymentTransferObjects.xsd"/>
-  <xsd:import namespace="http://com/rbsg/soa/DataTypes/PrimitiveDataTypes/V03/" schemaLocation="PrimitiveDatatypes.xsd"/>
-  <xsd:import namespace="http://com/rbsg/soa/Services/Definitions/V03/" schemaLocation="ServiceDefinitions.xsd"/>
-  <xsd:complexType name="validateArrangementForPaymentRequest">
-    <xsd:sequence>
-      <xsd:element name="requestHeader" type="sdef:RequestHeader"/>
-      <xsd:element name="arrangementIdentifier" type="pdt:ObjectReference">
-        <xsd:annotation>
-          <xsd:documentation>The identifier for the arrangement being validated, a variety of formats are supported by the service.</xsd:documentation>
-        </xsd:annotation>
-      </xsd:element>
-      <xsd:element maxOccurs="unbounded" minOccurs="0" name="processingParameter" type="pdt:Property">
-        <xsd:annotation>
-          <xsd:documentation>Optional parameter used to satisfy any consumer driven technical provider requirements</xsd:documentation>
-        </xsd:annotation>
-      </xsd:element>
-    </xsd:sequence>
-  </xsd:complexType>
-  <xsd:complexType name="ValidateArrangementForPaymentContent">
-    <xsd:sequence>
-      <xsd:element name="responseHeader" type="sdef:ResponseHeader"/>
-      <xsd:element minOccurs="0" name="validatedArrangement" type="avfpTO:ProductArrangement_TO">
-        <xsd:annotation>
-          <xsd:documentation>Details of the arrangement being validated by the service</xsd:documentation>
-        </xsd:annotation>
-      </xsd:element>
-    </xsd:sequence>
-  </xsd:complexType>
-  <xsd:complexType name="validateArrangementForPaymentResponse">
-    <xsd:sequence>
-      <xsd:choice>
-        <xsd:element name="response" type="avfpSP:ValidateArrangementForPaymentContent"/>
-        <xsd:element name="exception" type="sdef:Exception"/>
-      </xsd:choice>
-    </xsd:sequence>
-  </xsd:complexType>
-</xsd:schema>
+------------------------------------------------------------------------------------------------
+
+
+package com.rbs.bdd.infrastructure.config;
+
+import ch.qos.logback.core.CoreConstants;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.ws.config.annotation.EnableWs;
+import org.springframework.ws.config.annotation.WsConfigurerAdapter;
+import org.springframework.ws.server.EndpointInterceptor;
+import org.springframework.ws.soap.server.endpoint.interceptor.PayloadValidatingInterceptor;
+import org.springframework.ws.transport.http.MessageDispatcherServlet;
+import org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition;
+import org.springframework.xml.xsd.SimpleXsdSchema;
+import org.springframework.xml.xsd.commons.CommonsXsdSchemaCollection;
+import org.springframework.xml.xsd.XsdSchema;
+import org.springframework.xml.xsd.XsdSchemaCollection;
+
+import java.util.List;
+@Configuration
+@EnableWs
+public class SoapWebServiceConfig extends WsConfigurerAdapter {
+
+    @Bean
+    public ServletRegistrationBean<MessageDispatcherServlet> messageDispatcherServlet(ApplicationContext context) {
+        MessageDispatcherServlet servlet = new MessageDispatcherServlet();
+        servlet.setApplicationContext(context);
+        servlet.setTransformWsdlLocations(true);
+        return new ServletRegistrationBean<>(servlet, "/ws/*");
+    }
+
+ /*   @Bean(name = "arrangementSchema")
+    public XsdSchema arrangementSchema()
+    {
+      //  return createMergedSchema("xsd/ArrValidationForPaymentParameters.xsd");
+        return new SimpleXsdSchema((new ClassPathResource("xsd/ArrValidationForPaymentParameters.xsd")));
+    }
+
+    @Bean(name = "validateArrangementForPayment")
+    public DefaultWsdl11Definition defaultWsdl11Definition( XsdSchema arrangementSchema) {
+
+        DefaultWsdl11Definition definition = new DefaultWsdl11Definition();
+        definition.setPortTypeName("IArrValidationForPayment");
+        definition.setLocationUri("/ws");
+        definition.setTargetNamespace("http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01/");
+        //definition.setSchemaCollection(schema);
+        definition.setSchema(arrangementSchema);
+        return definition;
+    }
+*/
+
+
+
+    @Override
+    public void addInterceptors(List<EndpointInterceptor> interceptors) {
+        PayloadValidatingInterceptor validatingInterceptor = new PayloadValidatingInterceptor();
+        validatingInterceptor.setValidateRequest(true);
+        validatingInterceptor.setValidateResponse(false);
+        try {
+            validatingInterceptor.setXsdSchemaCollection(updateContactXsd());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        interceptors.add(validatingInterceptor);
+    }
+
+
+
+    @Bean(name="validateArrangementForPayment")
+    public DefaultWsdl11Definition defaultWsdl11Definition() throws Exception {
+        DefaultWsdl11Definition wsdl11Definition = new DefaultWsdl11Definition();
+        wsdl11Definition.setPortTypeName("IArrValidationForPayment");
+        wsdl11Definition.setLocationUri("/ws");
+        wsdl11Definition.setTargetNamespace("http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01");
+        wsdl11Definition.setSchemaCollection(updateContactXsd());
+        return wsdl11Definition;
+    }
+
+    @Bean
+    public XsdSchemaCollection updateContactXsd() throws Exception {
+        CommonsXsdSchemaCollection xsd = new CommonsXsdSchemaCollection(new ClassPathResource("xsd/ArrValidationForPaymentParameters.xsd"));
+        xsd.setInline(true);
+        return xsd;
+    }
+}
+
+
+
+
+--------------------------------------------------------------------
+
+Sample Request 
+
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v01="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <v01:validateArrangementForPayment>
+         <requestHeader>
+            <operatingBrand>ALL</operatingBrand>
+            <!--Zero or more repetitions:-->
+            <requestIds>
+               <systemId>RequestID</systemId>
+               <transactionId>123456789</transactionId>
+            </requestIds>
+            <cmdType>Request</cmdType>
+         </requestHeader>
+         <arrangementIdentifier>
+            <identifier>98532099799890</identifier>
+            <context>
+               <schemeName>AccountArrangementEnterpriseIdType</schemeName>
+               <codeValue>UKBasicBankAccountNumber</codeValue>
+            </context>
+         </arrangementIdentifier>
+      </v01:validateArrangementForPayment>
+   </soapenv:Body>
+</soapenv:Envelope>
+
+
