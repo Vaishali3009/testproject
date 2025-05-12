@@ -1,0 +1,40 @@
+package com.rbs.bdd.infrastructure.soap.api;
+
+import com.rbs.bdd.application.port.in.PaymentValidationPort;
+import com.rbs.bdd.generated.ValidateArrangementForPaymentRequest;
+import com.rbs.bdd.generated.ValidateArrangementForPaymentResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.ws.server.endpoint.annotation.Endpoint;
+import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
+import org.springframework.ws.server.endpoint.annotation.RequestPayload;
+import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
+
+import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
+
+@Endpoint
+@RequiredArgsConstructor
+public class PaymentValidationSoapAdapter {
+
+    private static final String NAMESPACE_URI = "http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01/";
+
+    private final PaymentValidationPort paymentValidationPort;
+
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "validateArrangementForPayment")
+    @ResponsePayload
+    public JAXBElement<ValidateArrangementForPaymentResponse> validateArrangementForPayment(
+            @RequestPayload JAXBElement<ValidateArrangementForPaymentRequest> request) {
+
+        ValidateArrangementForPaymentResponse response =
+                paymentValidationPort.validateArrangementForPayment(request.getValue());
+
+        QName responseName = new QName(NAMESPACE_URI, "validateArrangementForPaymentResponse");
+        return new JAXBElement<>(responseName, ValidateArrangementForPaymentResponse.class, response);
+    }
+}
+
+
+
+-------------
+
+
