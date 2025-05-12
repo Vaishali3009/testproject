@@ -10,23 +10,22 @@ package com.rbs.bdd.generated;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for validateArrangementForPaymentResponse complex type.
+ * <p>Java class for ValidateArrangementForPaymentContent complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="validateArrangementForPaymentResponse"&gt;
+ * &lt;complexType name="ValidateArrangementForPaymentContent"&gt;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;choice&gt;
- *           &lt;element name="response" type="{http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01/}ValidateArrangementForPaymentContent"/&gt;
- *           &lt;element name="exception" type="{http://com/rbsg/soa/Services/Definitions/V03/}Exception"/&gt;
- *         &lt;/choice&gt;
+ *         &lt;element name="responseHeader" type="{http://com/rbsg/soa/Services/Definitions/V03/}ResponseHeader"/&gt;
+ *         &lt;element name="validatedArrangement" type="{http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/TransferObjects/V01/}ProductArrangement_TO" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
@@ -36,61 +35,62 @@ import jakarta.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "validateArrangementForPaymentResponse", namespace = "http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01/", propOrder = {
-    "response",
-    "exception"
+@XmlType(name = "ValidateArrangementForPaymentContent", namespace = "http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01/", propOrder = {
+    "responseHeader",
+    "validatedArrangement"
 })
-public class ValidateArrangementForPaymentResponse {
+public class ValidateArrangementForPaymentContent {
 
-    protected ValidateArrangementForPaymentContent response;
-    protected Exception exception;
+    @XmlElement(required = true)
+    protected ResponseHeader responseHeader;
+    protected ProductArrangementTO validatedArrangement;
 
     /**
-     * Gets the value of the response property.
+     * Gets the value of the responseHeader property.
      * 
      * @return
      *     possible object is
-     *     {@link ValidateArrangementForPaymentContent }
+     *     {@link ResponseHeader }
      *     
      */
-    public ValidateArrangementForPaymentContent getResponse() {
-        return response;
+    public ResponseHeader getResponseHeader() {
+        return responseHeader;
     }
 
     /**
-     * Sets the value of the response property.
+     * Sets the value of the responseHeader property.
      * 
      * @param value
      *     allowed object is
-     *     {@link ValidateArrangementForPaymentContent }
+     *     {@link ResponseHeader }
      *     
      */
-    public void setResponse(ValidateArrangementForPaymentContent value) {
-        this.response = value;
+    public void setResponseHeader(ResponseHeader value) {
+        this.responseHeader = value;
     }
 
     /**
-     * Gets the value of the exception property.
+     * Gets the value of the validatedArrangement property.
      * 
      * @return
      *     possible object is
-     *     {@link Exception }
+     *     {@link ProductArrangementTO }
      *     
      */
-    public Exception getException() {
-        return exception;
+    public ProductArrangementTO getValidatedArrangement() {
+        return validatedArrangement;
     }
 
     /**
-     * Sets the value of the exception property.
+     * Sets the value of the validatedArrangement property.
      * 
      * @param value
      *     allowed object is
-     *     {@link Exception }
+     *     {@link ProductArrangementTO }
      *     
      */
-    public void setException(Exception value) {
-        this.exception = value;
+    public void setValidatedArrangement(ProductArrangementTO value) {
+        this.validatedArrangement = value;
     }
 
 }
