@@ -1,0 +1,84 @@
+package com.rbs.bdd.soap.model;
+
+import jakarta.xml.bind.annotation.*;
+
+@XmlRootElement(name = "Envelope", namespace = "http://schemas.xmlsoap.org/soap/envelope/")
+@XmlAccessorType(XmlAccessType.FIELD)
+public class Envelope {
+
+    @XmlElement(name = "Body", namespace = "http://schemas.xmlsoap.org/soap/envelope/")
+    private Body body;
+
+    public Body getBody() {
+        return body;
+    }
+
+    public void setBody(Body body) {
+        this.body = body;
+    }
+}
+
+--------------------
+
+package com.rbs.bdd.soap.model;
+
+import com.rbs.bdd.generated.ValidateArrangementForPaymentResponse;
+import jakarta.xml.bind.annotation.*;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+public class Body {
+
+    @XmlElement(name = "ValidateArrangementForPaymentResponse",
+                namespace = "http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/")
+    private ValidateArrangementForPaymentResponse validateArrangementForPaymentResponse;
+
+    public ValidateArrangementForPaymentResponse getValidateArrangementForPaymentResponse() {
+        return validateArrangementForPaymentResponse;
+    }
+
+    public void setValidateArrangementForPaymentResponse(ValidateArrangementForPaymentResponse response) {
+        this.validateArrangementForPaymentResponse = response;
+    }
+}
+
+
+
+
+
+
+-------
+{
+
+    @Override
+    public ValidateArrangementForPaymentResponse validateBusinessRules(ValidateArrangementForPaymentRequest request) {
+        try {
+            System.out.println("Process started for business logic");
+
+            // Create JAXB context for the envelope wrapper class
+            JAXBContext context = JAXBContext.newInstance(Envelope.class);
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+
+            // Load the static SOAP response
+            InputStream xml = getClass().getClassLoader().getResourceAsStream("static-response/response1.xml");
+            if (xml == null) {
+                throw new FileNotFoundException("File static-response/response1.xml not found.");
+            }
+
+            // Unmarshal the full SOAP envelope
+            Envelope envelope = (Envelope) unmarshaller.unmarshal(xml);
+            ValidateArrangementForPaymentResponse response = envelope.getBody().getValidateArrangementForPaymentResponse();
+
+            // Business logic
+            String operatingBrand = request.getRequestHeader().getOperatingBrand();
+            if ("ALL".equalsIgnoreCase(operatingBrand)) {
+                ResponseHeader header = response.getResponseHeader();
+                header.getResponseID().setSystemId("ModifiedESP");
+                header.getResponseID().setTransactionId("ModifiedTxn123");
+            }
+
+            return response;
+        } catch (Exception e) {
+            throw new SchemaValidationException("Failed to process static response XML", e);
+        }
+    }
+}
