@@ -1,161 +1,86 @@
-<NS1:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pdt="http://com/rbsg/soa/DataTypes/PrimitiveDataTypes/V03/" xmlns:NS1="http://schemas.xmlsoap.org/soap/envelope/">
-   <NS1:Body>
-      <NS2:validateArrangementForPaymentResponse xmlns:NS2="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/">
-         <response>
-            <responseHeader>
-               <responseId>
-                  <systemId>ESP</systemId>
-                  <transactionId>3flS1c3fdecbf61bad42301f4e4d720211216055235691h</transactionId>
-               </responseId>
-               <operatingBrand>NWB</operatingBrand>
-               <refRequestIds>
-                  <systemId>RequestID</systemId>
-                  <transactionId>123456789</transactionId>
-               </refRequestIds>
-               <cmdType>Response</cmdType>
-               <cmdStatus>Succeeded</cmdStatus>
-               <cmdNotifications>
-                  <returnCode>0</returnCode>
-                  <category>Success</category>
-                  <description>Success</description>
-                  <systemNotifications>
-                     <returnCode>00</returnCode>
-                     <category>Success</category>
-                     <description>Success</description>
-                     <processingId>
-                        <systemId>International</systemId>
-                     </processingId>
-                  </systemNotifications>
-                  <systemNotifications>
-                     <returnCode>0</returnCode>
-                     <category>Success</category>
-                     <description>Success</description>
-                     <processingId>
-                        <systemId>BPP</systemId>
-                     </processingId>
-                  </systemNotifications>
-               </cmdNotifications>
-            </responseHeader>
-            <validatedArrangement>
-               <alternativeIdentifier>
-                  <identifier>NXBJDGHFUSD01</identifier>
-                  <context>
-                     <schemeName>ArrangementEnterpriseIdType</schemeName>
-                     <codeValue>InternationalCustomerAccountNumber</codeValue>
-                  </context>
-               </alternativeIdentifier>
-               <alternativeIdentifier>
-                  <identifier>1400104057015</identifier>
-                  <context>
-                     <schemeName>ArrangementEnterpriseIdType</schemeName>
-                     <codeValue>IMMAS</codeValue>
-                  </context>
-               </alternativeIdentifier>
-               <universalUniqueIdentifier>
-                  <identifier>60730104057015</identifier>
-                  <context>
-                     <schemeName>ArrangementEnterpriseIdType</schemeName>
-                     <codeValue>UKBasicBankAccountNumber</codeValue>
-                  </context>
-               </universalUniqueIdentifier>
-               <name>VUWDL LFTN EWO UBI I/S</name>
-               <accountingUnits>
-                  <status>
-                     <schemeName>AccountingUnitStatus</schemeName>
-                     <codeValue>International - Unrestricted</codeValue>
-                  </status>
-               </accountingUnits>
-               <managingOrganizationUnit>
-                  <hasForName>
-                     <nameText>NWB NON EURO/STERLING IBAN S/CODE</nameText>
-                  </hasForName>
-                  <parentOrganization>
-                     <alternativeIdentifier>
-                        <identifier>278</identifier>
-                        <context>
-                           <schemeName>OrganizationEnterpriseIdType</schemeName>
-                           <codeValue>BankIdentifier</codeValue>
-                        </context>
-                        <extendedProperties xsi:type="pdt:Property">
-                           <string>NAT WEST BANK PLC</string>
-                           <name>BankShortName</name>
-                        </extendedProperties>
-                     </alternativeIdentifier>
-                     <hasForName>
-                        <nameText>NATIONAL WESTMINSTER BANK PLC</nameText>
-                     </hasForName>
-                     <parentOrganization>
-                        <alternativeIdentifier>
-                           <identifier>N</identifier>
-                           <context>
-                              <schemeName>OrganizationEnterpriseIdType</schemeName>
-                              <codeValue>InstanceIdentifier</codeValue>
-                           </context>
-                        </alternativeIdentifier>
-                     </parentOrganization>
-                  </parentOrganization>
-                  <sortCodeRegistration>
-                     <extendedProperties>
-                        <string>N</string>
-                        <name>EuroSortcode</name>
-                     </extendedProperties>
-                     <lifeCycleStatus>
-                        <status>
-                           <schemeName>RegistrationLifecycleStatus</schemeName>
-                           <codeValue>Effective</codeValue>
-                        </status>
-                     </lifeCycleStatus>
-                     <isIssuedIn>
-                        <universalUniqueIdentifier>
-                           <identifier>Mainland GB</identifier>
-                           <context>
-                              <schemeName>GeographicAreaType</schemeName>
-                              <codeValue>Region</codeValue>
-                           </context>
-                        </universalUniqueIdentifier>
-                     </isIssuedIn>
-                     <isTrainingBranch>false</isTrainingBranch>
-                     <sortCodeRegistrationType>
-                        <schemeName>SortCodeRegistrationType</schemeName>
-                        <codeValue>None</codeValue>
-                     </sortCodeRegistrationType>
-                     <paymentServicesProviderType>
-                        <schemeName>PaymentServicesProviderType</schemeName>
-                        <codeValue>External</codeValue>
-                     </paymentServicesProviderType>
-                     <agencyIndicator>N</agencyIndicator>
-                     <activeIndicator>A</activeIndicator>
-                     <nonFPSettlementSortCode>0</nonFPSettlementSortCode>
-                     <nonFPSettlementAccountNumber>0</nonFPSettlementAccountNumber>
-                     <isCreditCardHOCA>false</isCreditCardHOCA>
-                     <FPSettlementSortCode>0</FPSettlementSortCode>
-                     <FPSettlementAccountNumber>0</FPSettlementAccountNumber>
-                     <FPSettlementType>N</FPSettlementType>
-                     <isFPEnabled>N</isFPEnabled>
-                     <isInternalFunction>true</isInternalFunction>
-                  </sortCodeRegistration>
-               </managingOrganizationUnit>
-               <switchingArrangement>
-                  <switchingStatus>
-                     <schemeName>AccountArrangementSwitchingStatus</schemeName>
-                     <codeValue>Not Switching</codeValue>
-                  </switchingStatus>
-               </switchingArrangement>
-               <currency>
-                  <restrictedStatus>0</restrictedStatus>
-                  <alphabeticCode>
-                     <schemeName>CurrencyType</schemeName>
-                     <codeValue>USD</codeValue>
-                  </alphabeticCode>
-               </currency>
-               <contactPreferences>
-                  <correspondenceDestinationPreference>
-                     <schemeName>CorrespondenceDestinationPreferenceType</schemeName>
-                     <codeValue>M</codeValue>
-                  </correspondenceDestinationPreference>
-               </contactPreferences>
-            </validatedArrangement>
-         </response>
-      </NS2:validateArrangementForPaymentResponse>
-   </NS1:Body>
-</NS1:Envelope>
+package com.rbs.bdd.application.service;
+
+
+import com.rbs.bdd.application.exception.SchemaValidationException;
+import com.rbs.bdd.application.port.out.AccountValidationPort;
+import com.rbs.bdd.generated.*;
+import com.rbs.bdd.infrastructure.soap.model.Envelope;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.Unmarshaller;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.lang.Exception;
+
+@Service
+@RequiredArgsConstructor
+public class AccountValidationService implements AccountValidationPort {
+
+    @Override
+    public void validateSchema(ValidateArrangementForPaymentRequest request) {
+        // Schema is validated automatically by Spring WS
+        System.out.println("Schema Validation ");
+    }
+
+    @Override
+    public ValidateArrangementForPaymentResponse validateBusinessRules(ValidateArrangementForPaymentRequest request) {
+        try {
+            System.out.println("Process started for business logic");
+
+            // Create JAXB context for the envelope wrapper class
+            JAXBContext context = JAXBContext.newInstance(Envelope.class);
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+
+            // Load the static SOAP response
+            InputStream xml = getClass().getClassLoader().getResourceAsStream("static-response/response1.xml");
+            if (xml == null) {
+                throw new FileNotFoundException("File static-response/response1.xml not found.");
+            }
+
+            // Unmarshal the full SOAP envelope
+            Envelope envelope = (Envelope) unmarshaller.unmarshal(xml);
+            if(envelope==null || envelope.getBody()==null)
+            {
+                throw new SchemaValidationException("SOAP envelope or body is null");
+
+            }
+            ValidateArrangementForPaymentResponse response = envelope.getBody().getValidateArrangementForPaymentResponse();
+
+            if(response==null)
+            {
+                throw new SchemaValidationException("SOAP envelope or body is null");
+
+            }
+            ValidateArrangementForPaymentContent content=response.getResponse();
+            if(content ==null)
+            {
+                throw new SchemaValidationException("SOAP envelope or body is null");
+
+            }
+            ResponseHeader header= content.getResponseHeader();
+
+            // Business logic
+            String operatingBrand = request.getRequestHeader().getOperatingBrand();
+            if ("ALL".equalsIgnoreCase(operatingBrand)) {
+                ProcessingIdentifier responseId= header.getResponseId();
+                if(responseId==null)
+                {
+                   responseId= new ProcessingIdentifier();
+                   header.setResponseId(responseId);
+
+                }
+                responseId.setSystemId("ModifiedESP");
+                responseId.setTransactionId("ModifiedTxn123");
+
+            }
+
+            return response;
+        } catch (Exception e) {
+            throw new SchemaValidationException("Failed to process static response XML", e);
+        }
+    }
+}
