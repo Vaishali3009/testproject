@@ -1,15 +1,600 @@
+package com.rbs.bdd.application.port.in;
+
+import com.rbs.bdd.generated.ValidateArrangementForPaymentRequest;
+import com.rbs.bdd.generated.ValidateArrangementForPaymentResponse;
+
+import javax.xml.transform.Source;
+
+public interface PaymentValidationPort {
+    /** Working
+    ValidateArrangementForPaymentResponse validateArrangementForPayment(ValidateArrangementForPaymentRequest request);
+     **/
+    Source validateArrangementForPayment(ValidateArrangementForPaymentRequest request);
+
+    // CustomerEnrichmentResponse retrieveCustomer(CustomerEnrichmentRequest request);
+
+}
+
+
+--------------------------------------------------------------
+
+
+
+package com.rbs.bdd.application.port.out;
+
+import com.rbs.bdd.generated.ValidateArrangementForPaymentRequest;
+import com.rbs.bdd.generated.ValidateArrangementForPaymentResponse;
+
+import javax.wsdl.Input;
+import javax.xml.transform.Source;
+import java.io.InputStream;
+
+public interface AccountValidationPort {
+    void validateSchema(ValidateArrangementForPaymentRequest request);
+
+    /** Working
+    ValidateArrangementForPaymentResponse validateBusinessRules(ValidateArrangementForPaymentRequest request);
+**/
+    Source validateBusinessRules(ValidateArrangementForPaymentRequest request);
+
+     }
+
+
+
+--------------------------------------------------------------------
+
+
+package com.rbs.bdd.application.service;
+
+
+import com.rbs.bdd.application.exception.SchemaValidationException;
+import com.rbs.bdd.application.port.out.AccountValidationPort;
+import com.rbs.bdd.generated.*;
+import com.rbs.bdd.infrastructure.soap.model.Envelope;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.Marshaller;
+import jakarta.xml.bind.Unmarshaller;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.lang.Exception;
+
+@Service
+@RequiredArgsConstructor
+public class AccountValidationService implements AccountValidationPort {
+
+    @Override
+    public void validateSchema(ValidateArrangementForPaymentRequest request) {
+        // Schema is validated automatically by Spring WS
+        System.out.println("Schema Validation ");
+    }
+
+
+    /**
+     * Working
+     *
+     * @Override public ValidateArrangementForPaymentResponse validateBusinessRules(ValidateArrangementForPaymentRequest request) {
+     * try {
+     * System.out.println("Process started for business logic");
+     * <p>
+     * // Create JAXB context for the envelope wrapper class
+     * JAXBContext context = JAXBContext.newInstance(Envelope.class);
+     * Unmarshaller unmarshaller = context.createUnmarshaller();
+     * <p>
+     * // Load the static SOAP response
+     * InputStream xml = getClass().getClassLoader().getResourceAsStream("static-response/response1.xml");
+     * if (xml == null) {
+     * throw new FileNotFoundException("File static-response/response1.xml not found.");
+     * }
+     * <p>
+     * // Unmarshal the full SOAP envelope
+     * Envelope envelope = (Envelope) unmarshaller.unmarshal(xml);
+     * if(envelope==null || envelope.getBody()==null)
+     * {
+     * throw new SchemaValidationException("SOAP envelope or body is null");
+     * <p>
+     * }
+     * ValidateArrangementForPaymentResponse response = envelope.getBody().getValidateArrangementForPaymentResponse();
+     * <p>
+     * if(response==null)
+     * {
+     * throw new SchemaValidationException("SOAP envelope or body is null");
+     * <p>
+     * }
+     * ValidateArrangementForPaymentContent content=response.getResponse();
+     * if(content ==null)
+     * {
+     * throw new SchemaValidationException("SOAP envelope or body is null");
+     * <p>
+     * }
+     * ResponseHeader header= content.getResponseHeader();
+     * <p>
+     * // Business logic
+     * String operatingBrand = request.getRequestHeader().getOperatingBrand();
+     * if ("ALL".equalsIgnoreCase(operatingBrand)) {
+     * ProcessingIdentifier responseId= header.getResponseId();
+     * if(responseId==null)
+     * {
+     * responseId= new ProcessingIdentifier();
+     * header.setResponseId(responseId);
+     * <p>
+     * }
+     * responseId.setSystemId("ModifiedESP");
+     * responseId.setTransactionId("ModifiedTxn123");
+     * <p>
+     * }
+     * <p>
+     * return response;
+     * } catch (Exception e) {
+     * throw new SchemaValidationException("Failed to process static response XML", e);
+     * }
+     * }
+     **/
+//    @Override
+//    public Source validateBusinessRules(ValidateArrangementForPaymentRequest request) {
+//        try {
+//            JAXBContext context = JAXBContext.newInstance(Envelope.class);
+//            Unmarshaller unmarshaller = context.createUnmarshaller();
+//            Marshaller marshaller = context.createMarshaller();
+//
+//            InputStream xml = getClass().getClassLoader().getResourceAsStream("static-response/response1.xml");
+//            Envelope envelope = (Envelope) unmarshaller.unmarshal(xml);
+//
+//            // Modify response
+//            ValidateArrangementForPaymentResponse response = envelope.getBody().getValidateArrangementForPaymentResponse();
+//            String brand = request.getRequestHeader().getOperatingBrand();
+//            if ("ALL".equalsIgnoreCase(brand)) {
+//                ResponseHeader header = response.getResponse().getResponseHeader();
+//                ProcessingIdentifier id = header.getResponseId();
+//                if (id == null) id = new ProcessingIdentifier();
+//                id.setSystemId("ModifiedESP");
+//                id.setTransactionId("ModifiedTxn123");
+//                header.setResponseId(id);
+//            }
+//
+//            // Marshal back to byte array and return as Source
+//            ByteArrayOutputStream output = new ByteArrayOutputStream();
+//            marshaller.marshal(envelope, output);
+//            ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
+//            return new StreamSource(input);
+//
+//        } catch (Exception e) {
+//            throw new SchemaValidationException("Unable to process SOAP response", e);
+//        }
+//    }
+
+
+
+        @Override
+        public Source validateBusinessRules(ValidateArrangementForPaymentRequest request) {
+            try {
+                InputStream xml = getClass().getClassLoader().getResourceAsStream("static-response/response1.xml");
+                if (xml == null) {
+                    throw new SchemaValidationException("response1.xml not found in classpath");
+                }
+
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                factory.setNamespaceAware(true);
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                Document doc = builder.parse(xml);
+
+                XPath xpath = XPathFactory.newInstance().newXPath();
+
+                // Update systemId
+                Node systemId = (Node) xpath.evaluate(
+                        "//*[local-name()='responseId']/*[local-name()='systemId']", doc, XPathConstants.NODE);
+                if (systemId != null) systemId.setTextContent("ModifiedESP");
+
+                // Update transactionId
+                Node transactionId = (Node) xpath.evaluate(
+                        "//*[local-name()='responseId']/*[local-name()='transactionId']", doc, XPathConstants.NODE);
+                if (transactionId != null) transactionId.setTextContent("ModifiedTxn123");
+
+                return new DOMSource(doc);
+
+            } catch (Exception e) {
+                throw new SchemaValidationException("Error processing response XML", e);
+            }
+        }
+    }
+
+
+
+
+---------------------------------------------------------------
+
+
+package com.rbs.bdd.application.service;
+
+import com.rbs.bdd.application.port.out.AccountValidationPort;
+import com.rbs.bdd.application.port.in.PaymentValidationPort;
+import com.rbs.bdd.generated.ValidateArrangementForPaymentRequest;
+import com.rbs.bdd.generated.ValidateArrangementForPaymentResponse;
+import com.rbs.bdd.infrastructure.soap.adapter.StaticResponseLoader;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import java.io.InputStream;
+
+@Service
+@RequiredArgsConstructor
+public class PaymentOrchestrator implements PaymentValidationPort {
+
+    private final AccountValidationPort accountValidationPort;
+
+
+    // private final CustomerRetrievalService customerRetrievalService;
+
+    /** Working
+    @Override
+    public ValidateArrangementForPaymentResponse validateArrangementForPayment(ValidateArrangementForPaymentRequest request) {
+        accountValidationPort.validateSchema(request);
+        return  accountValidationPort.validateBusinessRules(request);
+    }
+
+    **/
+    @Override
+    public Source validateArrangementForPayment(ValidateArrangementForPaymentRequest request) {
+        accountValidationPort.validateSchema(request);
+        return  accountValidationPort.validateBusinessRules(request);
+    }
+
+   // @Override
+    //public RetrieveCustomerResponse retrieveCustomer(RetrieveCustomerRequest request) {
+      //  return customerRetrievalService.retrieveCustomer(request);
+    //}
+}
+
+
+
+-----------------------------------------------------------------
+
+
+package com.rbs.bdd.infrastructure.config;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.ws.context.MessageContext;
+import org.springframework.ws.server.EndpointInterceptor;
+
+import java.io.ByteArrayOutputStream;
+
+public class SoapLoggingInterceptor implements EndpointInterceptor {
+
+    private static final Logger logger = LoggerFactory.getLogger(SoapLoggingInterceptor.class);
+
+    @Override
+    public boolean handleRequest(MessageContext messageContext, Object endpoint) {
+        logMessage("SOAP Request", messageContext.getRequest());
+        return true;
+    }
+
+    @Override
+    public boolean handleResponse(MessageContext messageContext, Object endpoint) {
+        logMessage("SOAP Response", messageContext.getResponse());
+        return true;
+    }
+
+    @Override
+    public boolean handleFault(MessageContext messageContext, Object endpoint) {
+        logMessage("SOAP Fault", messageContext.getResponse());
+        return true;
+    }
+
+    @Override
+    public void afterCompletion(MessageContext messageContext, Object endpoint, Exception ex) {
+        // No action needed
+    }
+
+    private void logMessage(String type, org.springframework.ws.WebServiceMessage message) {
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            message.writeTo(out);
+            logger.info("{}:\n{}", type, out.toString());
+        } catch (Exception e) {
+            logger.error("Error logging {} message: {}", type, e.getMessage());
+        }
+    }
+}
+
+
+
+
+----------------------------------------------------------
+
+package com.rbs.bdd.infrastructure.config;
+
+import ch.qos.logback.core.CoreConstants;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.ws.config.annotation.EnableWs;
+import org.springframework.ws.config.annotation.WsConfigurerAdapter;
+import org.springframework.ws.server.EndpointInterceptor;
+
+import org.springframework.ws.server.endpoint.adapter.DefaultMethodEndpointAdapter;
+import org.springframework.ws.server.endpoint.adapter.method.SourcePayloadMethodProcessor;
+import org.springframework.ws.soap.server.endpoint.interceptor.PayloadValidatingInterceptor;
+import org.springframework.ws.transport.http.MessageDispatcherServlet;
+import org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition;
+import org.springframework.xml.xsd.SimpleXsdSchema;
+import org.springframework.xml.xsd.commons.CommonsXsdSchemaCollection;
+import org.springframework.xml.xsd.XsdSchema;
+import org.springframework.xml.xsd.XsdSchemaCollection;
+
+import java.util.Collections;
+import java.util.List;
 @Configuration
+@EnableWs
 public class SoapWebServiceConfig extends WsConfigurerAdapter {
+
+
+    @Bean
+    public DefaultMethodEndpointAdapter methodEndpointAdapter()
+    {
+        DefaultMethodEndpointAdapter adapter= new DefaultMethodEndpointAdapter();
+        adapter.setMethodReturnValueHandlers(Collections.singletonList((new SourcePayloadMethodProcessor())));
+
+        return adapter;
+    }
+    @Bean
+    public ServletRegistrationBean<MessageDispatcherServlet> messageDispatcherServlet(ApplicationContext context) {
+        MessageDispatcherServlet servlet = new MessageDispatcherServlet();
+        servlet.setApplicationContext(context);
+        servlet.setTransformWsdlLocations(true);
+        return new ServletRegistrationBean<>(servlet, "/ws/*");
+    }
+
+ /*   @Bean(name = "arrangementSchema")
+    public XsdSchema arrangementSchema()
+    {
+      //  return createMergedSchema("xsd/ArrValidationForPaymentParameters.xsd");
+        return new SimpleXsdSchema((new ClassPathResource("xsd/ArrValidationForPaymentParameters.xsd")));
+    }
+
+    @Bean(name = "validateArrangementForPayment")
+    public DefaultWsdl11Definition defaultWsdl11Definition( XsdSchema arrangementSchema) {
+
+        DefaultWsdl11Definition definition = new DefaultWsdl11Definition();
+        definition.setPortTypeName("IArrValidationForPayment");
+        definition.setLocationUri("/ws");
+        definition.setTargetNamespace("http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01/");
+        //definition.setSchemaCollection(schema);
+        definition.setSchema(arrangementSchema);
+        return definition;
+    }
+*/
+
+
 
     @Override
     public void addInterceptors(List<EndpointInterceptor> interceptors) {
-        // Leave blank or add logging interceptor
+        PayloadValidatingInterceptor validatingInterceptor = new PayloadValidatingInterceptor();
+        validatingInterceptor.setValidateRequest(true);
+        validatingInterceptor.setValidateResponse(false);
+        try {
+            validatingInterceptor.setXsdSchemaCollection(updateContactXsd());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        interceptors.add(validatingInterceptor);
+    }
+
+
+
+    @Bean(name="ArrValidationForPaymentParameters")
+    public DefaultWsdl11Definition defaultWsdl11Definition() throws Exception {
+        DefaultWsdl11Definition wsdl11Definition = new DefaultWsdl11Definition();
+        wsdl11Definition.setPortTypeName("IArrValidationForPayment");
+        wsdl11Definition.setLocationUri("/ws");
+        wsdl11Definition.setTargetNamespace("http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01/");
+        wsdl11Definition.setSchemaCollection(updateContactXsd());
+        return wsdl11Definition;
     }
 
     @Bean
-    public DefaultMethodEndpointAdapter methodEndpointAdapter() {
-        DefaultMethodEndpointAdapter adapter = new DefaultMethodEndpointAdapter();
-        adapter.setMessageConverters(Collections.emptyList()); // Prevent default marshalling
-        return adapter;
+    public XsdSchemaCollection updateContactXsd() throws Exception {
+        CommonsXsdSchemaCollection xsd = new CommonsXsdSchemaCollection(new ClassPathResource("xsd/ArrValidationForPaymentParameters.xsd"));
+        xsd.setInline(true);
+        return xsd;
     }
 }
+
+
+-------------------------------------------------------------------------
+
+
+package com.rbs.bdd.infrastructure.soap.adapter;
+
+import com.rbs.bdd.generated.ValidateArrangementForPaymentResponse;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.Unmarshaller;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.stereotype.Component;
+
+import java.io.InputStream;
+
+@Component
+public class StaticResponseLoader {
+
+    public ValidateArrangementForPaymentResponse loadResponse() {
+        try {
+            InputStream inputStream = new ClassPathResource("static-response/response.xml").getInputStream();
+            JAXBContext context = JAXBContext.newInstance(ValidateArrangementForPaymentResponse.class);
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+            return (ValidateArrangementForPaymentResponse) unmarshaller.unmarshal(inputStream);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load static response XML", e);
+        }
+    }
+}
+
+
+
+
+------------------------------------------------------------
+
+
+
+package com.rbs.bdd.infrastructure.soap.api;
+
+import com.rbs.bdd.application.port.in.PaymentValidationPort;
+import com.rbs.bdd.generated.ResponseHeader;
+import com.rbs.bdd.generated.ValidateArrangementForPaymentContent;
+import com.rbs.bdd.generated.ValidateArrangementForPaymentRequest;
+import com.rbs.bdd.generated.ValidateArrangementForPaymentResponse;
+import jakarta.xml.bind.JAXBElement;
+import lombok.RequiredArgsConstructor;
+import org.springframework.ws.server.endpoint.annotation.Endpoint;
+import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
+import org.springframework.ws.server.endpoint.annotation.RequestPayload;
+import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
+
+import javax.xml.namespace.QName;
+import javax.xml.transform.Source;
+
+@Endpoint
+
+public class PaymentValidationSoapAdapter {
+
+    private static final String NAMESPACE_URI = "http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01/";
+
+    public PaymentValidationSoapAdapter(PaymentValidationPort paymentValidationPort) {
+        this.paymentValidationPort = paymentValidationPort;
+    }
+
+    private final PaymentValidationPort paymentValidationPort;
+
+
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "validateArrangementForPayment")
+    @ResponsePayload
+    public Source validateArrangementForPayment(@RequestPayload ValidateArrangementForPaymentRequest request) {
+        System.out.println("The request is here ") ;
+
+      //  ValidateArrangementForPaymentRequest request= requestElement.getValue();
+      //  return  paymentValidationPort.validateArrangementForPayment(request);
+        return paymentValidationPort.validateArrangementForPayment(request);
+         }
+
+    /** Working
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "validateArrangementForPayment")
+    @ResponsePayload
+    public ValidateArrangementForPaymentResponse validateArrangementForPayment(@RequestPayload ValidateArrangementForPaymentRequest request) {
+        System.out.println("The request is here ") ;
+    return paymentValidationPort.validateArrangementForPayment(request);
+    }**/
+
+    /** NEw Working
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "validateArrangementForPayment")
+    @ResponsePayload
+    public JAXBElement<ValidateArrangementForPaymentResponse> validateArrangementForPayment(@RequestPayload JAXBElement<ValidateArrangementForPaymentRequest> request) {
+        ValidateArrangementForPaymentResponse response =
+                paymentValidationPort.validateArrangementForPayment(request.getValue());
+
+        QName responseName = new QName(NAMESPACE_URI, "validateArrangementForPaymentResponse");
+        return new JAXBElement<>(responseName, ValidateArrangementForPaymentResponse.class, response);
+    }
+
+    **/
+/*
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "ValidateArrangementForPaymentRequest")
+    @ResponsePayload
+    public JAXBElement<ValidateArrangementForPaymentResponse> validateArrangementForPayment(@RequestPayload JAXBElement<ValidateArrangementForPaymentRequest> request) {
+       // return paymentValidationPort.validateArrangementForPayment(request);
+        // Implement your business logic here
+        System.out.println("Endpoint called");
+        // QName name = new QName( "validateArrangementForPaymentRequest");
+        ValidateArrangementForPaymentResponse response = new ValidateArrangementForPaymentResponse();
+
+        // Populate the response object
+        ValidateArrangementForPaymentContent content = new ValidateArrangementForPaymentContent();
+        ResponseHeader header = new ResponseHeader();
+        header.setOperatingBrand("NBS");
+        // header.set
+        content.setResponseHeader(header);
+        response.setResponse(content);
+        // return response;
+        return createJaxbElement(response, ValidateArrangementForPaymentResponse.class);
+    }
+
+    private <T> JAXBElement<T> createJaxbElement(T object, Class<T> clazz) {
+        return new JAXBElement<>(new QName(clazz.getSimpleName()), clazz, object);
+    }
+
+    */
+    // Handler for Customer Retrieval to be implemented later
+}
+
+-----------------------------------------------------
+
+
+
+package com.rbs.bdd.infrastructure.soap.model;
+
+import com.rbs.bdd.generated.ValidateArrangementForPaymentResponse;
+import jakarta.xml.bind.annotation.*;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+public class Body {
+
+    @XmlElement(name = "validateArrangementForPaymentResponse",
+            namespace = "http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/")
+    private ValidateArrangementForPaymentResponse validateArrangementForPaymentResponse;
+
+    public ValidateArrangementForPaymentResponse getValidateArrangementForPaymentResponse() {
+        return validateArrangementForPaymentResponse;
+    }
+
+    public void setValidateArrangementForPaymentResponse(ValidateArrangementForPaymentResponse response) {
+        this.validateArrangementForPaymentResponse = response;
+    }
+}
+-----------------------------------------------------------------------
+
+
+
+package com.rbs.bdd.infrastructure.soap.model;
+import com.rbs.bdd.generated.ValidateArrangementForPaymentResponse;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+
+
+@XmlRootElement(name = "Envelope", namespace = "http://schemas.xmlsoap.org/soap/envelope/")
+@XmlAccessorType(XmlAccessType.FIELD)
+public class Envelope {
+
+    @XmlElement(name = "Body", namespace = "http://schemas.xmlsoap.org/soap/envelope/")
+    private Body body;
+
+    public Body getBody() {
+        return body;
+    }
+
+    public void setBody(Body body) {
+        this.body = body;
+    }
+}
+
