@@ -1,0 +1,35 @@
+public Source validateBusinessRules(ValidateArrangementForPaymentRequest request) {
+        try {
+            JAXBContext context = JAXBContext.newInstance(Envelope.class);
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+            InputStream xml = getClass().getClassLoader().getResourceAsStream("static-response/response.xml");
+
+            Envelope envelope = (Envelope) unmarshaller.unmarshal(xml);
+            if (envelope == null || envelope.getBody() == null)
+                throw new SchemaValidationException("Envelope or Body is null");
+
+            ValidateArrangementForPaymentResponse response = envelope.getBody().getValidateArrangementForPaymentResponse();
+            if (response == null || response.getResponse() == null)
+                throw new SchemaValidationException("Response content is null");
+
+            ResponseHeader header = response.getResponse().getResponseHeader();
+            String brand = request.getRequestHeader().getOperatingBrand();
+
+            if ("ALL".equalsIgnoreCase(brand)) {
+                ProcessingIdentifier id = header.getResponseId();
+                if (id == null) id = new ProcessingIdentifier();
+                id.setSystemId("ModifiedESP");
+                id.setTransactionId("ModifiedTxn123");
+                header.setResponseId(id);
+            }
+
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.marshal(envelope, output);
+
+            return new StreamSource(new ByteArrayInputStream(output.toByteArray()));
+        } catch (Exception e) {
+            throw new SchemaValidationException("Error processing SOAP response", e);
+        }
+    }
+}
