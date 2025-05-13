@@ -1,345 +1,194 @@
-static response1.xml
+package com.rbs.bdd.application.service;
+
+
+import com.rbs.bdd.application.exception.SchemaValidationException;
+import com.rbs.bdd.application.port.out.AccountValidationPort;
+import com.rbs.bdd.generated.*;
+import com.rbs.bdd.infrastructure.soap.model.Envelope;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.Marshaller;
+import jakarta.xml.bind.Unmarshaller;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.lang.Exception;
+
+@Service
+@RequiredArgsConstructor
+public class AccountValidationService implements AccountValidationPort {
+
+    @Override
+    public void validateSchema(ValidateArrangementForPaymentRequest request) {
+        // Schema is validated automatically by Spring WS
+        System.out.println("Schema Validation ");
+    }
+
+
+    /**
+     * Working
+     *
+     * @Override public ValidateArrangementForPaymentResponse validateBusinessRules(ValidateArrangementForPaymentRequest request) {
+     * try {
+     * System.out.println("Process started for business logic");
+     * <p>
+     * // Create JAXB context for the envelope wrapper class
+     * JAXBContext context = JAXBContext.newInstance(Envelope.class);
+     * Unmarshaller unmarshaller = context.createUnmarshaller();
+     * <p>
+     * // Load the static SOAP response
+     * InputStream xml = getClass().getClassLoader().getResourceAsStream("static-response/response1.xml");
+     * if (xml == null) {
+     * throw new FileNotFoundException("File static-response/response1.xml not found.");
+     * }
+     * <p>
+     * // Unmarshal the full SOAP envelope
+     * Envelope envelope = (Envelope) unmarshaller.unmarshal(xml);
+     * if(envelope==null || envelope.getBody()==null)
+     * {
+     * throw new SchemaValidationException("SOAP envelope or body is null");
+     * <p>
+     * }
+     * ValidateArrangementForPaymentResponse response = envelope.getBody().getValidateArrangementForPaymentResponse();
+     * <p>
+     * if(response==null)
+     * {
+     * throw new SchemaValidationException("SOAP envelope or body is null");
+     * <p>
+     * }
+     * ValidateArrangementForPaymentContent content=response.getResponse();
+     * if(content ==null)
+     * {
+     * throw new SchemaValidationException("SOAP envelope or body is null");
+     * <p>
+     * }
+     * ResponseHeader header= content.getResponseHeader();
+     * <p>
+     * // Business logic
+     * String operatingBrand = request.getRequestHeader().getOperatingBrand();
+     * if ("ALL".equalsIgnoreCase(operatingBrand)) {
+     * ProcessingIdentifier responseId= header.getResponseId();
+     * if(responseId==null)
+     * {
+     * responseId= new ProcessingIdentifier();
+     * header.setResponseId(responseId);
+     * <p>
+     * }
+     * responseId.setSystemId("ModifiedESP");
+     * responseId.setTransactionId("ModifiedTxn123");
+     * <p>
+     * }
+     * <p>
+     * return response;
+     * } catch (Exception e) {
+     * throw new SchemaValidationException("Failed to process static response XML", e);
+     * }
+     * }
+     **/
+//    @Override
+//    public Source validateBusinessRules(ValidateArrangementForPaymentRequest request) {
+//        try {
+//            JAXBContext context = JAXBContext.newInstance(Envelope.class);
+//            Unmarshaller unmarshaller = context.createUnmarshaller();
+//            Marshaller marshaller = context.createMarshaller();
+//
+//            InputStream xml = getClass().getClassLoader().getResourceAsStream("static-response/response1.xml");
+//            Envelope envelope = (Envelope) unmarshaller.unmarshal(xml);
+//
+//            // Modify response
+//            ValidateArrangementForPaymentResponse response = envelope.getBody().getValidateArrangementForPaymentResponse();
+//            String brand = request.getRequestHeader().getOperatingBrand();
+//            if ("ALL".equalsIgnoreCase(brand)) {
+//                ResponseHeader header = response.getResponse().getResponseHeader();
+//                ProcessingIdentifier id = header.getResponseId();
+//                if (id == null) id = new ProcessingIdentifier();
+//                id.setSystemId("ModifiedESP");
+//                id.setTransactionId("ModifiedTxn123");
+//                header.setResponseId(id);
+//            }
+//
+//            // Marshal back to byte array and return as Source
+//            ByteArrayOutputStream output = new ByteArrayOutputStream();
+//            marshaller.marshal(envelope, output);
+//            ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
+//            return new StreamSource(input);
+//
+//        } catch (Exception e) {
+//            throw new SchemaValidationException("Unable to process SOAP response", e);
+//        }
+//    }
+
+
+
+        @Override
+        public Source validateBusinessRules(ValidateArrangementForPaymentRequest request) {
+            try {
+                InputStream xml = getClass().getClassLoader().getResourceAsStream("static-response/response1.xml");
+                if (xml == null) {
+                    throw new SchemaValidationException("response1.xml not found in classpath");
+                }
+
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                factory.setNamespaceAware(true);
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                Document doc = builder.parse(xml);
+
+                XPath xpath = XPathFactory.newInstance().newXPath();
+
+                // Update systemId
+                Node systemId = (Node) xpath.evaluate(
+                        "//*[local-name()='responseId']/*[local-name()='systemId']", doc, XPathConstants.NODE);
+                if (systemId != null) systemId.setTextContent("ModifiedESP");
+
+                // Update transactionId
+                Node transactionId = (Node) xpath.evaluate(
+                        "//*[local-name()='responseId']/*[local-name()='transactionId']", doc, XPathConstants.NODE);
+                if (transactionId != null) transactionId.setTextContent("ModifiedTxn123");
+
+                return new DOMSource(doc);
+
+            } catch (Exception e) {
+                throw new SchemaValidationException("Error processing response XML", e);
+            }
+        }
+    }
+
+
+
+
+--------------------------------------------------------------------------------------
 
 
 
 
 
-<NS1:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pdt="http://com/rbsg/soa/DataTypes/PrimitiveDataTypes/V03/"
-              xmlns:NS1="http://schemas.xmlsoap.org/soap/envelope/">
-   <NS1:Body>
-      <NS2:validateArrangementForPaymentResponse
-              xmlns:NS2="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/">
-         <response>
-            <responseHeader>
-               <responseId>
-                  <systemId>ESP</systemId>
-                  <transactionId>3flS1c3fdecbf61bad42301f4e4d720211216055235691h</transactionId>
-               </responseId>
-               <operatingBrand>NWB</operatingBrand>
-               <refRequestIds>
-                  <systemId>RequestID</systemId>
-                  <transactionId>123456789</transactionId>
-               </refRequestIds>
-               <cmdType>Response</cmdType>
-               <cmdStatus>Succeeded</cmdStatus>
-               <cmdNotifications>
-                  <returnCode>0</returnCode>
-                  <category>Success</category>
-                  <description>Success</description>
-                  <systemNotifications>
-                     <returnCode>00</returnCode>
-                     <category>Success</category>
-                     <description>Success</description>
-                     <processingId>
-                        <systemId>International</systemId>
-                     </processingId>
-                  </systemNotifications>
-                  <systemNotifications>
-                     <returnCode>0</returnCode>
-                     <category>Success</category>
-                     <description>Success</description>
-                     <processingId>
-                        <systemId>BPP</systemId>
-                     </processingId>
-                  </systemNotifications>
-               </cmdNotifications>
-            </responseHeader>
-            <validatedArrangement>
-               <alternativeIdentifier>
-                  <identifier>NXBJDGHFUSD01</identifier>
-                  <context>
-                     <schemeName>ArrangementEnterpriseIdType</schemeName>
-                     <codeValue>InternationalCustomerAccountNumber</codeValue>
-                  </context>
-               </alternativeIdentifier>
-               <alternativeIdentifier>
-                  <identifier>1400104057015</identifier>
-                  <context>
-                     <schemeName>ArrangementEnterpriseIdType</schemeName>
-                     <codeValue>IMMAS</codeValue>
-                  </context>
-               </alternativeIdentifier>
-               <universalUniqueIdentifier>
-                  <identifier>60730104057015</identifier>
-                  <context>
-                     <schemeName>ArrangementEnterpriseIdType</schemeName>
-                     <codeValue>UKBasicBankAccountNumber</codeValue>
-                  </context>
-               </universalUniqueIdentifier>
-               <name>VUWDL LFTN EWO UBI I/S</name>
-               <accountingUnits>
-                  <status>
-                     <schemeName>AccountingUnitStatus</schemeName>
-                     <codeValue>International - Unrestricted</codeValue>
-                  </status>
-               </accountingUnits>
-               <managingOrganizationUnit>
-                  <hasForName>
-                     <nameText>NWB NON EURO/STERLING IBAN S/CODE</nameText>
-                  </hasForName>
-                  <parentOrganization>
-                     <alternativeIdentifier>
-                        <identifier>278</identifier>
-                        <context>
-                           <schemeName>OrganizationEnterpriseIdType</schemeName>
-                           <codeValue>BankIdentifier</codeValue>
-                        </context>
-                        <extendedProperties xsi:type="pdt:Property">
-                           <string>NAT WEST BANK PLC</string>
-                           <name>BankShortName</name>
-                        </extendedProperties>
-                     </alternativeIdentifier>
-                     <hasForName>
-                        <nameText>NATIONAL WESTMINSTER BANK PLC</nameText>
-                     </hasForName>
-                     <parentOrganization>
-                        <alternativeIdentifier>
-                           <identifier>N</identifier>
-                           <context>
-                              <schemeName>OrganizationEnterpriseIdType</schemeName>
-                              <codeValue>InstanceIdentifier</codeValue>
-                           </context>
-                        </alternativeIdentifier>
-                     </parentOrganization>
-                  </parentOrganization>
-                  <sortCodeRegistration>
-                     <extendedProperties>
-                        <string>N</string>
-                        <name>EuroSortcode</name>
-                     </extendedProperties>
-                     <lifeCycleStatus>
-                        <status>
-                           <schemeName>RegistrationLifecycleStatus</schemeName>
-                           <codeValue>Effective</codeValue>
-                        </status>
-                     </lifeCycleStatus>
-                     <isIssuedIn>
-                        <universalUniqueIdentifier>
-                           <identifier>Mainland GB</identifier>
-                           <context>
-                              <schemeName>GeographicAreaType</schemeName>
-                              <codeValue>Region</codeValue>
-                           </context>
-                        </universalUniqueIdentifier>
-                     </isIssuedIn>
-                     <isTrainingBranch>false</isTrainingBranch>
-                     <sortCodeRegistrationType>
-                        <schemeName>SortCodeRegistrationType</schemeName>
-                        <codeValue>None</codeValue>
-                     </sortCodeRegistrationType>
-                     <paymentServicesProviderType>
-                        <schemeName>PaymentServicesProviderType</schemeName>
-                        <codeValue>External</codeValue>
-                     </paymentServicesProviderType>
-                     <agencyIndicator>N</agencyIndicator>
-                     <activeIndicator>A</activeIndicator>
-                     <nonFPSettlementSortCode>0</nonFPSettlementSortCode>
-                     <nonFPSettlementAccountNumber>0</nonFPSettlementAccountNumber>
-                     <isCreditCardHOCA>false</isCreditCardHOCA>
-                     <FPSettlementSortCode>0</FPSettlementSortCode>
-                     <FPSettlementAccountNumber>0</FPSettlementAccountNumber>
-                     <FPSettlementType>N</FPSettlementType>
-                     <isFPEnabled>N</isFPEnabled>
-                     <isInternalFunction>true</isInternalFunction>
-                  </sortCodeRegistration>
-               </managingOrganizationUnit>
-               <switchingArrangement>
-                  <switchingStatus>
-                     <schemeName>AccountArrangementSwitchingStatus</schemeName>
-                     <codeValue>Not Switching</codeValue>
-                  </switchingStatus>
-               </switchingArrangement>
-               <currency>
-                  <restrictedStatus>0</restrictedStatus>
-                  <alphabeticCode>
-                     <schemeName>CurrencyType</schemeName>
-                     <codeValue>USD</codeValue>
-                  </alphabeticCode>
-               </currency>
-               <contactPreferences>
-                  <correspondenceDestinationPreference>
-                     <schemeName>CorrespondenceDestinationPreferenceType</schemeName>
-                     <codeValue>M</codeValue>
-                  </correspondenceDestinationPreference>
-               </contactPreferences>
-            </validatedArrangement>
-         </response>
-      </NS2:validateArrangementForPaymentResponse>
-   </NS1:Body>
-</NS1:Envelope>
 
 
 
 
 
-----------------------------------------------------------------------------
 
-Generated response.xml
+   @PayloadRoot(namespace = NAMESPACE_URI, localPart = "validateArrangementForPayment")
+    @ResponsePayload
+    public Source validateArrangementForPayment(@RequestPayload ValidateArrangementForPaymentRequest request) {
+        System.out.println("The request is here ") ;
 
-
-<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-   <SOAP-ENV:Header/>
-   <SOAP-ENV:Body>
-      <NS1:Envelope xmlns:NS1="http://schemas.xmlsoap.org/soap/envelope/" xmlns:pdt="http://com/rbsg/soa/DataTypes/PrimitiveDataTypes/V03/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-         <NS1:Body>
-            <NS2:validateArrangementForPaymentResponse xmlns:NS2="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/">
-               <response>
-                  <responseHeader>
-                     <responseId>
-                        <systemId>ModifiedESP</systemId>
-                        <transactionId>ModifiedTxn123</transactionId>
-                     </responseId>
-                     <operatingBrand>NWB</operatingBrand>
-                     <refRequestIds>
-                        <systemId>RequestID</systemId>
-                        <transactionId>123456789</transactionId>
-                     </refRequestIds>
-                     <cmdType>Response</cmdType>
-                     <cmdStatus>Succeeded</cmdStatus>
-                     <cmdNotifications>
-                        <returnCode>0</returnCode>
-                        <category>Success</category>
-                        <description>Success</description>
-                        <systemNotifications>
-                           <returnCode>00</returnCode>
-                           <category>Success</category>
-                           <description>Success</description>
-                           <processingId>
-                              <systemId>International</systemId>
-                           </processingId>
-                        </systemNotifications>
-                        <systemNotifications>
-                           <returnCode>0</returnCode>
-                           <category>Success</category>
-                           <description>Success</description>
-                           <processingId>
-                              <systemId>BPP</systemId>
-                           </processingId>
-                        </systemNotifications>
-                     </cmdNotifications>
-                  </responseHeader>
-                  <validatedArrangement>
-                     <alternativeIdentifier>
-                        <identifier>NXBJDGHFUSD01</identifier>
-                        <context>
-                           <schemeName>ArrangementEnterpriseIdType</schemeName>
-                           <codeValue>InternationalCustomerAccountNumber</codeValue>
-                        </context>
-                     </alternativeIdentifier>
-                     <alternativeIdentifier>
-                        <identifier>1400104057015</identifier>
-                        <context>
-                           <schemeName>ArrangementEnterpriseIdType</schemeName>
-                           <codeValue>IMMAS</codeValue>
-                        </context>
-                     </alternativeIdentifier>
-                     <universalUniqueIdentifier>
-                        <identifier>60730104057015</identifier>
-                        <context>
-                           <schemeName>ArrangementEnterpriseIdType</schemeName>
-                           <codeValue>UKBasicBankAccountNumber</codeValue>
-                        </context>
-                     </universalUniqueIdentifier>
-                     <name>VUWDL LFTN EWO UBI I/S</name>
-                     <accountingUnits>
-                        <status>
-                           <schemeName>AccountingUnitStatus</schemeName>
-                           <codeValue>International - Unrestricted</codeValue>
-                        </status>
-                     </accountingUnits>
-                     <managingOrganizationUnit>
-                        <hasForName>
-                           <nameText>NWB NON EURO/STERLING IBAN S/CODE</nameText>
-                        </hasForName>
-                        <parentOrganization>
-                           <alternativeIdentifier>
-                              <identifier>278</identifier>
-                              <context>
-                                 <schemeName>OrganizationEnterpriseIdType</schemeName>
-                                 <codeValue>BankIdentifier</codeValue>
-                              </context>
-                              <extendedProperties xsi:type="pdt:Property">
-                                 <string>NAT WEST BANK PLC</string>
-                                 <name>BankShortName</name>
-                              </extendedProperties>
-                           </alternativeIdentifier>
-                           <hasForName>
-                              <nameText>NATIONAL WESTMINSTER BANK PLC</nameText>
-                           </hasForName>
-                           <parentOrganization>
-                              <alternativeIdentifier>
-                                 <identifier>N</identifier>
-                                 <context>
-                                    <schemeName>OrganizationEnterpriseIdType</schemeName>
-                                    <codeValue>InstanceIdentifier</codeValue>
-                                 </context>
-                              </alternativeIdentifier>
-                           </parentOrganization>
-                        </parentOrganization>
-                        <sortCodeRegistration>
-                           <extendedProperties>
-                              <string>N</string>
-                              <name>EuroSortcode</name>
-                           </extendedProperties>
-                           <lifeCycleStatus>
-                              <status>
-                                 <schemeName>RegistrationLifecycleStatus</schemeName>
-                                 <codeValue>Effective</codeValue>
-                              </status>
-                           </lifeCycleStatus>
-                           <isIssuedIn>
-                              <universalUniqueIdentifier>
-                                 <identifier>Mainland GB</identifier>
-                                 <context>
-                                    <schemeName>GeographicAreaType</schemeName>
-                                    <codeValue>Region</codeValue>
-                                 </context>
-                              </universalUniqueIdentifier>
-                           </isIssuedIn>
-                           <isTrainingBranch>false</isTrainingBranch>
-                           <sortCodeRegistrationType>
-                              <schemeName>SortCodeRegistrationType</schemeName>
-                              <codeValue>None</codeValue>
-                           </sortCodeRegistrationType>
-                           <paymentServicesProviderType>
-                              <schemeName>PaymentServicesProviderType</schemeName>
-                              <codeValue>External</codeValue>
-                           </paymentServicesProviderType>
-                           <agencyIndicator>N</agencyIndicator>
-                           <activeIndicator>A</activeIndicator>
-                           <nonFPSettlementSortCode>0</nonFPSettlementSortCode>
-                           <nonFPSettlementAccountNumber>0</nonFPSettlementAccountNumber>
-                           <isCreditCardHOCA>false</isCreditCardHOCA>
-                           <FPSettlementSortCode>0</FPSettlementSortCode>
-                           <FPSettlementAccountNumber>0</FPSettlementAccountNumber>
-                           <FPSettlementType>N</FPSettlementType>
-                           <isFPEnabled>N</isFPEnabled>
-                           <isInternalFunction>true</isInternalFunction>
-                        </sortCodeRegistration>
-                     </managingOrganizationUnit>
-                     <switchingArrangement>
-                        <switchingStatus>
-                           <schemeName>AccountArrangementSwitchingStatus</schemeName>
-                           <codeValue>Not Switching</codeValue>
-                        </switchingStatus>
-                     </switchingArrangement>
-                     <currency>
-                        <restrictedStatus>0</restrictedStatus>
-                        <alphabeticCode>
-                           <schemeName>CurrencyType</schemeName>
-                           <codeValue>USD</codeValue>
-                        </alphabeticCode>
-                     </currency>
-                     <contactPreferences>
-                        <correspondenceDestinationPreference>
-                           <schemeName>CorrespondenceDestinationPreferenceType</schemeName>
-                           <codeValue>M</codeValue>
-                        </correspondenceDestinationPreference>
-                     </contactPreferences>
-                  </validatedArrangement>
-               </response>
-            </NS2:validateArrangementForPaymentResponse>
-         </NS1:Body>
-      </NS1:Envelope>
-   </SOAP-ENV:Body>
-</SOAP-ENV:Envelope>
+      //  ValidateArrangementForPaymentRequest request= requestElement.getValue();
+      //  return  paymentValidationPort.validateArrangementForPayment(request);
+        return paymentValidationPort.validateArrangementForPayment(request);
+         }
