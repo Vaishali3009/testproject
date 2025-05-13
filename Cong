@@ -1,45 +1,74 @@
-confirg
+package com.rbs.bdd.application.service;
 
+import com.rbs.bdd.application.exception.SchemaValidationException;
+import com.rbs.bdd.application.port.out.AccountValidationPort;
+import com.rbs.bdd.generated.ValidateArrangementForPaymentRequest;
+import com.rbs.bdd.infrastructure.soap.model.Envelope;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.ws.soap.saaj.SaajSoapMessage;
 
-package com.rbs.bdd.config.v1;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+@Service
+@RequiredArgsConstructor
+public class AccountValidationService implements AccountValidationPort {
 
-import javax.xml.XMLConstants;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import java.io.File;
+    @Override
+    public void validateSchema(ValidateArrangementForPaymentRequest request) {
+        System.out.println("Schema validated by Spring WS.");
+    }
 
-@Configuration
-public class SchemaConfig {
+    @Override
+    public javax.xml.transform.Source validateBusinessRules(ValidateArrangementForPaymentRequest request) {
+        try {
+            // 1. Load the static SOAP response XML from resources
+            InputStream xml = getClass().getClassLoader().getResourceAsStream("static-response/response1.xml");
+            if (xml == null) {
+                throw new SchemaValidationException("File static-response/response1.xml not found.");
+            }
 
-    @Bean
-    public Schema schema() throws Exception {
-        SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        return schemaFactory.newSchema(new File("src/main/resources/xsd/ArrValidationForPaymentParameters.xsd"));
+            // 2. Unmarshal to Envelope (your JAXB-wrapped SOAP object)
+            JAXBContext context = JAXBContext.newInstance(Envelope.class);
+            Envelope envelope = (Envelope) context.createUnmarshaller().unmarshal(xml);
+
+            // 3. Apply business logic (if operatingBrand is ALL, modify systemId and transactionId)
+            String brand = request.getRequestHeader().getOperatingBrand();
+            if ("ALL".equalsIgnoreCase(brand)) {
+                envelope.getBody()
+                        .getValidateArrangementForPaymentResponse()
+                        .getResponse()
+                        .getResponseHeader()
+                        .getResponseId()
+                        .setSystemId("ModifiedESP");
+
+                envelope.getBody()
+                        .getValidateArrangementForPaymentResponse()
+                        .getResponse()
+                        .getResponseHeader()
+                        .getResponseId()
+                        .setTransactionId("ModifiedTxn123");
+            }
+
+            // 4. Marshal back to byte stream
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+            marshaller.marshal(envelope, outputStream);
+
+            // 5. Return as a Source (SOAP envelope preserved, no Spring wrapping)
+            return new StreamSource(new ByteArrayInputStream(outputStream.toByteArray()));
+
+        } catch (Exception e) {
+            throw new SchemaValidationException("Failed to generate SOAP response", e);
+        }
     }
 }
-
-
-
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.ws.soap.server.endpoint.SoapFaultMappingExceptionResolver;
-import org.springframework.ws.soap.SoapFaultDefinition;
-
-@Configuration
-public class SoapFaultConfig {
-
-    @Bean
-    public SoapFaultMappingExceptionResolver exceptionResolver() {
-        SoapFaultMappingExceptionResolver resolver = new SoapFaultMappingExceptionResolver();
-        resolver.setDefaultFault(SoapFaultDefinition.SERVER);  // Maps exceptions to SOAP fault
-        resolver.setOrder(1);
-        return resolver;
-    }
-}
-
-
-
