@@ -1,0 +1,59 @@
+package com.rbs.bdd.application.service;
+
+import com.rbs.bdd.application.exception.SchemaValidationException;
+import com.rbs.bdd.application.port.out.AccountValidationPort;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
+import java.io.InputStream;
+
+@Service
+@RequiredArgsConstructor
+public class AccountValidationService implements AccountValidationPort {
+
+    @Override
+    public void validateSchema(Object request) {
+        System.out.println("Schema validation is handled by Spring WS.");
+    }
+
+    @Override
+    public Source validateBusinessRules(Object request) {
+        try {
+            InputStream xml = getClass().getClassLoader().getResourceAsStream("static-response/response1.xml");
+            if (xml == null) {
+                throw new SchemaValidationException("response1.xml not found in classpath");
+            }
+
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(xml);
+
+            XPath xpath = XPathFactory.newInstance().newXPath();
+
+            // Update systemId
+            Node systemId = (Node) xpath.evaluate(
+                "//*[local-name()='responseId']/*[local-name()='systemId']", doc, XPathConstants.NODE);
+            if (systemId != null) systemId.setTextContent("ModifiedESP");
+
+            // Update transactionId
+            Node transactionId = (Node) xpath.evaluate(
+                "//*[local-name()='responseId']/*[local-name()='transactionId']", doc, XPathConstants.NODE);
+            if (transactionId != null) transactionId.setTextContent("ModifiedTxn123");
+
+            return new DOMSource(doc);
+
+        } catch (Exception e) {
+            throw new SchemaValidationException("Error processing response XML", e);
+        }
+    }
+}
