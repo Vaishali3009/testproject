@@ -1,59 +1,345 @@
-package com.rbs.bdd.application.service;
+static response1.xml
 
-import com.rbs.bdd.application.exception.SchemaValidationException;
-import com.rbs.bdd.application.port.out.AccountValidationPort;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Source;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathFactory;
-import java.io.InputStream;
 
-@Service
-@RequiredArgsConstructor
-public class AccountValidationService implements AccountValidationPort {
 
-    @Override
-    public void validateSchema(Object request) {
-        System.out.println("Schema validation is handled by Spring WS.");
-    }
 
-    @Override
-    public Source validateBusinessRules(Object request) {
-        try {
-            InputStream xml = getClass().getClassLoader().getResourceAsStream("static-response/response1.xml");
-            if (xml == null) {
-                throw new SchemaValidationException("response1.xml not found in classpath");
-            }
+<NS1:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pdt="http://com/rbsg/soa/DataTypes/PrimitiveDataTypes/V03/"
+              xmlns:NS1="http://schemas.xmlsoap.org/soap/envelope/">
+   <NS1:Body>
+      <NS2:validateArrangementForPaymentResponse
+              xmlns:NS2="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/">
+         <response>
+            <responseHeader>
+               <responseId>
+                  <systemId>ESP</systemId>
+                  <transactionId>3flS1c3fdecbf61bad42301f4e4d720211216055235691h</transactionId>
+               </responseId>
+               <operatingBrand>NWB</operatingBrand>
+               <refRequestIds>
+                  <systemId>RequestID</systemId>
+                  <transactionId>123456789</transactionId>
+               </refRequestIds>
+               <cmdType>Response</cmdType>
+               <cmdStatus>Succeeded</cmdStatus>
+               <cmdNotifications>
+                  <returnCode>0</returnCode>
+                  <category>Success</category>
+                  <description>Success</description>
+                  <systemNotifications>
+                     <returnCode>00</returnCode>
+                     <category>Success</category>
+                     <description>Success</description>
+                     <processingId>
+                        <systemId>International</systemId>
+                     </processingId>
+                  </systemNotifications>
+                  <systemNotifications>
+                     <returnCode>0</returnCode>
+                     <category>Success</category>
+                     <description>Success</description>
+                     <processingId>
+                        <systemId>BPP</systemId>
+                     </processingId>
+                  </systemNotifications>
+               </cmdNotifications>
+            </responseHeader>
+            <validatedArrangement>
+               <alternativeIdentifier>
+                  <identifier>NXBJDGHFUSD01</identifier>
+                  <context>
+                     <schemeName>ArrangementEnterpriseIdType</schemeName>
+                     <codeValue>InternationalCustomerAccountNumber</codeValue>
+                  </context>
+               </alternativeIdentifier>
+               <alternativeIdentifier>
+                  <identifier>1400104057015</identifier>
+                  <context>
+                     <schemeName>ArrangementEnterpriseIdType</schemeName>
+                     <codeValue>IMMAS</codeValue>
+                  </context>
+               </alternativeIdentifier>
+               <universalUniqueIdentifier>
+                  <identifier>60730104057015</identifier>
+                  <context>
+                     <schemeName>ArrangementEnterpriseIdType</schemeName>
+                     <codeValue>UKBasicBankAccountNumber</codeValue>
+                  </context>
+               </universalUniqueIdentifier>
+               <name>VUWDL LFTN EWO UBI I/S</name>
+               <accountingUnits>
+                  <status>
+                     <schemeName>AccountingUnitStatus</schemeName>
+                     <codeValue>International - Unrestricted</codeValue>
+                  </status>
+               </accountingUnits>
+               <managingOrganizationUnit>
+                  <hasForName>
+                     <nameText>NWB NON EURO/STERLING IBAN S/CODE</nameText>
+                  </hasForName>
+                  <parentOrganization>
+                     <alternativeIdentifier>
+                        <identifier>278</identifier>
+                        <context>
+                           <schemeName>OrganizationEnterpriseIdType</schemeName>
+                           <codeValue>BankIdentifier</codeValue>
+                        </context>
+                        <extendedProperties xsi:type="pdt:Property">
+                           <string>NAT WEST BANK PLC</string>
+                           <name>BankShortName</name>
+                        </extendedProperties>
+                     </alternativeIdentifier>
+                     <hasForName>
+                        <nameText>NATIONAL WESTMINSTER BANK PLC</nameText>
+                     </hasForName>
+                     <parentOrganization>
+                        <alternativeIdentifier>
+                           <identifier>N</identifier>
+                           <context>
+                              <schemeName>OrganizationEnterpriseIdType</schemeName>
+                              <codeValue>InstanceIdentifier</codeValue>
+                           </context>
+                        </alternativeIdentifier>
+                     </parentOrganization>
+                  </parentOrganization>
+                  <sortCodeRegistration>
+                     <extendedProperties>
+                        <string>N</string>
+                        <name>EuroSortcode</name>
+                     </extendedProperties>
+                     <lifeCycleStatus>
+                        <status>
+                           <schemeName>RegistrationLifecycleStatus</schemeName>
+                           <codeValue>Effective</codeValue>
+                        </status>
+                     </lifeCycleStatus>
+                     <isIssuedIn>
+                        <universalUniqueIdentifier>
+                           <identifier>Mainland GB</identifier>
+                           <context>
+                              <schemeName>GeographicAreaType</schemeName>
+                              <codeValue>Region</codeValue>
+                           </context>
+                        </universalUniqueIdentifier>
+                     </isIssuedIn>
+                     <isTrainingBranch>false</isTrainingBranch>
+                     <sortCodeRegistrationType>
+                        <schemeName>SortCodeRegistrationType</schemeName>
+                        <codeValue>None</codeValue>
+                     </sortCodeRegistrationType>
+                     <paymentServicesProviderType>
+                        <schemeName>PaymentServicesProviderType</schemeName>
+                        <codeValue>External</codeValue>
+                     </paymentServicesProviderType>
+                     <agencyIndicator>N</agencyIndicator>
+                     <activeIndicator>A</activeIndicator>
+                     <nonFPSettlementSortCode>0</nonFPSettlementSortCode>
+                     <nonFPSettlementAccountNumber>0</nonFPSettlementAccountNumber>
+                     <isCreditCardHOCA>false</isCreditCardHOCA>
+                     <FPSettlementSortCode>0</FPSettlementSortCode>
+                     <FPSettlementAccountNumber>0</FPSettlementAccountNumber>
+                     <FPSettlementType>N</FPSettlementType>
+                     <isFPEnabled>N</isFPEnabled>
+                     <isInternalFunction>true</isInternalFunction>
+                  </sortCodeRegistration>
+               </managingOrganizationUnit>
+               <switchingArrangement>
+                  <switchingStatus>
+                     <schemeName>AccountArrangementSwitchingStatus</schemeName>
+                     <codeValue>Not Switching</codeValue>
+                  </switchingStatus>
+               </switchingArrangement>
+               <currency>
+                  <restrictedStatus>0</restrictedStatus>
+                  <alphabeticCode>
+                     <schemeName>CurrencyType</schemeName>
+                     <codeValue>USD</codeValue>
+                  </alphabeticCode>
+               </currency>
+               <contactPreferences>
+                  <correspondenceDestinationPreference>
+                     <schemeName>CorrespondenceDestinationPreferenceType</schemeName>
+                     <codeValue>M</codeValue>
+                  </correspondenceDestinationPreference>
+               </contactPreferences>
+            </validatedArrangement>
+         </response>
+      </NS2:validateArrangementForPaymentResponse>
+   </NS1:Body>
+</NS1:Envelope>
 
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(xml);
 
-            XPath xpath = XPathFactory.newInstance().newXPath();
 
-            // Update systemId
-            Node systemId = (Node) xpath.evaluate(
-                "//*[local-name()='responseId']/*[local-name()='systemId']", doc, XPathConstants.NODE);
-            if (systemId != null) systemId.setTextContent("ModifiedESP");
 
-            // Update transactionId
-            Node transactionId = (Node) xpath.evaluate(
-                "//*[local-name()='responseId']/*[local-name()='transactionId']", doc, XPathConstants.NODE);
-            if (transactionId != null) transactionId.setTextContent("ModifiedTxn123");
 
-            return new DOMSource(doc);
+----------------------------------------------------------------------------
 
-        } catch (Exception e) {
-            throw new SchemaValidationException("Error processing response XML", e);
-        }
-    }
-}
+Generated response.xml
+
+
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+   <SOAP-ENV:Header/>
+   <SOAP-ENV:Body>
+      <NS1:Envelope xmlns:NS1="http://schemas.xmlsoap.org/soap/envelope/" xmlns:pdt="http://com/rbsg/soa/DataTypes/PrimitiveDataTypes/V03/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+         <NS1:Body>
+            <NS2:validateArrangementForPaymentResponse xmlns:NS2="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/">
+               <response>
+                  <responseHeader>
+                     <responseId>
+                        <systemId>ModifiedESP</systemId>
+                        <transactionId>ModifiedTxn123</transactionId>
+                     </responseId>
+                     <operatingBrand>NWB</operatingBrand>
+                     <refRequestIds>
+                        <systemId>RequestID</systemId>
+                        <transactionId>123456789</transactionId>
+                     </refRequestIds>
+                     <cmdType>Response</cmdType>
+                     <cmdStatus>Succeeded</cmdStatus>
+                     <cmdNotifications>
+                        <returnCode>0</returnCode>
+                        <category>Success</category>
+                        <description>Success</description>
+                        <systemNotifications>
+                           <returnCode>00</returnCode>
+                           <category>Success</category>
+                           <description>Success</description>
+                           <processingId>
+                              <systemId>International</systemId>
+                           </processingId>
+                        </systemNotifications>
+                        <systemNotifications>
+                           <returnCode>0</returnCode>
+                           <category>Success</category>
+                           <description>Success</description>
+                           <processingId>
+                              <systemId>BPP</systemId>
+                           </processingId>
+                        </systemNotifications>
+                     </cmdNotifications>
+                  </responseHeader>
+                  <validatedArrangement>
+                     <alternativeIdentifier>
+                        <identifier>NXBJDGHFUSD01</identifier>
+                        <context>
+                           <schemeName>ArrangementEnterpriseIdType</schemeName>
+                           <codeValue>InternationalCustomerAccountNumber</codeValue>
+                        </context>
+                     </alternativeIdentifier>
+                     <alternativeIdentifier>
+                        <identifier>1400104057015</identifier>
+                        <context>
+                           <schemeName>ArrangementEnterpriseIdType</schemeName>
+                           <codeValue>IMMAS</codeValue>
+                        </context>
+                     </alternativeIdentifier>
+                     <universalUniqueIdentifier>
+                        <identifier>60730104057015</identifier>
+                        <context>
+                           <schemeName>ArrangementEnterpriseIdType</schemeName>
+                           <codeValue>UKBasicBankAccountNumber</codeValue>
+                        </context>
+                     </universalUniqueIdentifier>
+                     <name>VUWDL LFTN EWO UBI I/S</name>
+                     <accountingUnits>
+                        <status>
+                           <schemeName>AccountingUnitStatus</schemeName>
+                           <codeValue>International - Unrestricted</codeValue>
+                        </status>
+                     </accountingUnits>
+                     <managingOrganizationUnit>
+                        <hasForName>
+                           <nameText>NWB NON EURO/STERLING IBAN S/CODE</nameText>
+                        </hasForName>
+                        <parentOrganization>
+                           <alternativeIdentifier>
+                              <identifier>278</identifier>
+                              <context>
+                                 <schemeName>OrganizationEnterpriseIdType</schemeName>
+                                 <codeValue>BankIdentifier</codeValue>
+                              </context>
+                              <extendedProperties xsi:type="pdt:Property">
+                                 <string>NAT WEST BANK PLC</string>
+                                 <name>BankShortName</name>
+                              </extendedProperties>
+                           </alternativeIdentifier>
+                           <hasForName>
+                              <nameText>NATIONAL WESTMINSTER BANK PLC</nameText>
+                           </hasForName>
+                           <parentOrganization>
+                              <alternativeIdentifier>
+                                 <identifier>N</identifier>
+                                 <context>
+                                    <schemeName>OrganizationEnterpriseIdType</schemeName>
+                                    <codeValue>InstanceIdentifier</codeValue>
+                                 </context>
+                              </alternativeIdentifier>
+                           </parentOrganization>
+                        </parentOrganization>
+                        <sortCodeRegistration>
+                           <extendedProperties>
+                              <string>N</string>
+                              <name>EuroSortcode</name>
+                           </extendedProperties>
+                           <lifeCycleStatus>
+                              <status>
+                                 <schemeName>RegistrationLifecycleStatus</schemeName>
+                                 <codeValue>Effective</codeValue>
+                              </status>
+                           </lifeCycleStatus>
+                           <isIssuedIn>
+                              <universalUniqueIdentifier>
+                                 <identifier>Mainland GB</identifier>
+                                 <context>
+                                    <schemeName>GeographicAreaType</schemeName>
+                                    <codeValue>Region</codeValue>
+                                 </context>
+                              </universalUniqueIdentifier>
+                           </isIssuedIn>
+                           <isTrainingBranch>false</isTrainingBranch>
+                           <sortCodeRegistrationType>
+                              <schemeName>SortCodeRegistrationType</schemeName>
+                              <codeValue>None</codeValue>
+                           </sortCodeRegistrationType>
+                           <paymentServicesProviderType>
+                              <schemeName>PaymentServicesProviderType</schemeName>
+                              <codeValue>External</codeValue>
+                           </paymentServicesProviderType>
+                           <agencyIndicator>N</agencyIndicator>
+                           <activeIndicator>A</activeIndicator>
+                           <nonFPSettlementSortCode>0</nonFPSettlementSortCode>
+                           <nonFPSettlementAccountNumber>0</nonFPSettlementAccountNumber>
+                           <isCreditCardHOCA>false</isCreditCardHOCA>
+                           <FPSettlementSortCode>0</FPSettlementSortCode>
+                           <FPSettlementAccountNumber>0</FPSettlementAccountNumber>
+                           <FPSettlementType>N</FPSettlementType>
+                           <isFPEnabled>N</isFPEnabled>
+                           <isInternalFunction>true</isInternalFunction>
+                        </sortCodeRegistration>
+                     </managingOrganizationUnit>
+                     <switchingArrangement>
+                        <switchingStatus>
+                           <schemeName>AccountArrangementSwitchingStatus</schemeName>
+                           <codeValue>Not Switching</codeValue>
+                        </switchingStatus>
+                     </switchingArrangement>
+                     <currency>
+                        <restrictedStatus>0</restrictedStatus>
+                        <alphabeticCode>
+                           <schemeName>CurrencyType</schemeName>
+                           <codeValue>USD</codeValue>
+                        </alphabeticCode>
+                     </currency>
+                     <contactPreferences>
+                        <correspondenceDestinationPreference>
+                           <schemeName>CorrespondenceDestinationPreferenceType</schemeName>
+                           <codeValue>M</codeValue>
+                        </correspondenceDestinationPreference>
+                     </contactPreferences>
+                  </validatedArrangement>
+               </response>
+            </NS2:validateArrangementForPaymentResponse>
+         </NS1:Body>
+      </NS1:Envelope>
+   </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
