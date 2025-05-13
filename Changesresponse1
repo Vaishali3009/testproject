@@ -1,17 +1,15 @@
 @Override
 public void writeRawSoapResponse(ValidateArrangementForPaymentRequest request, WebServiceMessage message) {
     try {
-        // Load the static SOAP response
         InputStream xml = getClass().getClassLoader().getResourceAsStream("static-response/response1.xml");
         if (xml == null) throw new SchemaValidationException("response1.xml not found");
 
-        // Unmarshal to Envelope object
         JAXBContext jaxbContext = JAXBContext.newInstance(Envelope.class);
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
         Envelope envelope = (Envelope) unmarshaller.unmarshal(xml);
 
-        // Modify fields
-        ValidateArrangementForPaymentResponse response = envelope.getBody().getValidateArrangementForPaymentResponse();
+        ValidateArrangementForPaymentResponse response =
+                envelope.getBody().getValidateArrangementForPaymentResponse();
         if (response != null && response.getResponse() != null && response.getResponse().getResponseHeader() != null) {
             var header = response.getResponse().getResponseHeader();
             if (header.getResponseId() != null) {
@@ -20,13 +18,20 @@ public void writeRawSoapResponse(ValidateArrangementForPaymentRequest request, W
             }
         }
 
-        // Marshal updated envelope back to SOAP response
+        // Marshal to raw output first
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Marshaller marshaller = jaxbContext.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+        marshaller.marshal(envelope, outputStream);
 
-        marshaller.marshal(envelope, message.getPayloadResult());
+        // Write entire response directly as final SOAP message
+        Transformer transformer = TransformerFactory.newInstance().newTransformer();
+        transformer.transform(
+            new StreamSource(new ByteArrayInputStream(outputStream.toByteArray())),
+            message.getPayloadResult()
+        );
 
     } catch (Exception e) {
-        throw new SchemaValidationException("Failed to marshal custom SOAP response", e);
+        throw new SchemaValidationException("Failed to write raw JAXB-mapped SOAP response", e);
     }
 }
