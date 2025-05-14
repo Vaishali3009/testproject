@@ -1,331 +1,309 @@
-package com.rbs.bdd.application.service;
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-import com.rbs.bdd.application.exception.SchemaValidationException;
-import com.rbs.bdd.application.port.out.AccountValidationPort;
+  <parent>
+    <groupId>com.rbs.bdd</groupId>
+    <artifactId>bdd-ms-esp-simulation-service-parent</artifactId>
+    <version>${revision}</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <groupId>com.rbs.bdd</groupId>
+  <artifactId>bdd-ms-esp-simulation-service</artifactId>
+  <name>bdd-ms-esp-simulation-service</name>
+  <description>BDD ESP Simulator microservice - This is an example of a BDD ESP Simulator Service.</description>
+
+  <properties>
+    <validation-api.version>1.1.0.Final</validation-api.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.apache.ws.commons.schema</groupId>
+        <artifactId>XmlSchema</artifactId>
+        <version>1.4.3</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <!-- enabling actuator to expose management endpoints -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    <!-- Used to add hyperlinks to the actuator's endpoints -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-hateoas</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+      <version>3.0.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
+      <version>3.0.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.ws.xmlschema</groupId>
+      <artifactId>xmlschema-core</artifactId>
+      <version>2.2.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.ws.commons.schema</groupId>
+      <artifactId>XmlSchema</artifactId>
+      <version>1.4.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.ws</groupId>
+      <artifactId>spring-xml</artifactId>
+      <version>4.0.12</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.ws.commons.schema</groupId>
+          <artifactId>XmlSchema</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <!-- Dependency added to do bean validation in spring boot app as it's packaged with jakarta.validation-api.jar -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>software.amazon.awssdk</groupId>-->
+<!--      <artifactId>apache-client</artifactId>-->
+<!--    </dependency>-->
+    <!-- Required for UserIdentityFilter -->
+<!--    <dependency>-->
+<!--      <groupId>org.json</groupId>-->
+<!--      <artifactId>json</artifactId>-->
+<!--      <version>20240303</version>-->
+<!--    </dependency>-->
+
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>${httpclient.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>commons-logging</artifactId>
+          <groupId>commons-logging</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpcore</artifactId>
+      <version>${httpcore.version}</version>
+    </dependency>
+
+
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-to-slf4j</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+      <version>4.0.2</version>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.xml.bind</groupId>
+      <artifactId>jaxb-impl</artifactId>
+      <version>4.0.2</version>
+    </dependency>
+
+    <!--    JAXB API-->
+
+    <!-- SOAP Dependencies Start-->
+    <dependency>
+      <groupId>org.springframework.ws</groupId>
+      <artifactId>spring-ws-core</artifactId>
+      <version>4.0.10</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.xml.ws</groupId>
+      <artifactId>jakarta.xml.ws-api</artifactId>
+      <version>4.0.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.xml.ws</groupId>
+      <artifactId>jaxws-ri</artifactId>
+      <version>4.0.1</version>
+      <type>pom</type>
+      <exclusions>
+        <exclusion>
+          <groupId>com.fasterxml.woodstox</groupId>
+          <artifactId>woodstox-core</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!-- Dependency to convert xml to json -->
+    <dependency>
+      <groupId>com.github.javadev</groupId>
+      <artifactId>underscore</artifactId>
+      <version>1.89</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${lombok.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>xml-resolver</groupId>
+      <artifactId>xml-resolver</artifactId>
+      <version>1.2</version>
+    </dependency>
+    <!-- Dependency for caching -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-cache</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>wsdl4j</groupId>
+      <artifactId>wsdl4j</artifactId>
+      <version>1.6.3</version>
+    </dependency>
+
+    <!-- Test dependencies -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.vaadin.external.google</groupId>
+          <artifactId>android-json</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>5.7.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.ws</groupId>
+      <artifactId>spring-ws-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+<!--     Adding JAXB2 Maven Plugin     -->
+
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>jaxb2-maven-plugin</artifactId>
+          <version>3.1.0</version>
+          <executions>
+            <execution>
+              <id>xjc</id>
+              <goals>
+                <goal>xjc</goal>
+              </goals>
+<!--              <phase>generate-sources</phase>-->
+              <configuration>
+<!--                <verbose>true</verbose>-->
+<!--                <extension>true</extension>-->
+                <sources>
+<!--                  <source>src/main/resources/xsd</source>-->
+                  <source>${project.basedir}/src/main/resources/xsd/ArrValidationForPaymentParameters.xsd</source>
+                </sources>
+                <includes>
+                  <include>**/*.xsd</include>
+                </includes>
+                <outputDirectory>${project.build.directory}/generated-sources/jaxb</outputDirectory>
+                <packageName>com.rbs.bdd.generated</packageName>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>${maven-jar-plugin.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+              <!--to be imported on other projects-->
+              <classifier>original</classifier>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.22.2</version>
+      </plugin>
+    </plugins>
+  </build>
+
+  <scm>
+    <connection>scm:git:${stash.http.url}/CPBD/${project.artifactId}-archetype-template.git</connection>
+    <url>scm:git:${stash.http.url}/CPBD/${project.artifactId}-archetype-template.git</url>
+    <developerConnection>scm:git:${stash.ssh.url}/CPBD/${project.artifactId}-archetype-template.git
+    </developerConnection>
+  </scm>
+
+</project>
+
+
+--------------------------------
+
+
+package com.rbs.bdd.infrastructure.soap.api;
+
+import com.rbs.bdd.application.port.in.PaymentValidationPort;
+import com.rbs.bdd.generated.ResponseHeader;
+import com.rbs.bdd.generated.ValidateArrangementForPaymentContent;
 import com.rbs.bdd.generated.ValidateArrangementForPaymentRequest;
-import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+
 import org.springframework.ws.WebServiceMessage;
-import org.springframework.ws.soap.saaj.SaajSoapMessage;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
+import org.springframework.ws.context.MessageContext;
+import org.springframework.ws.server.endpoint.annotation.Endpoint;
+import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
+import org.springframework.ws.server.endpoint.annotation.RequestPayload;
+import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathFactory;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-
-/**
- * Service class responsible for validating SOAP request schema and applying business rules to static XML response.
- */
-@Service
-@RequiredArgsConstructor
-public class AccountValidationService implements AccountValidationPort {
-
-    private static final Logger logger = LoggerFactory.getLogger(AccountValidationService.class);
-
-    /**
-     * Automatically validates the request schema via Spring WS's interceptor.
-     */
-    @Override
-    public void validateSchema(ValidateArrangementForPaymentRequest request) {
-        logger.info("Schema validation completed (Spring WS handles XSD check)");
-    }
-
-    /**
-     * Applies business rules to a static SOAP response XML file, modifies specific fields using DOM/XPath,
-     * and writes the transformed XML directly to the outgoing SOAP message.
-     *
-     * @param request SOAP request containing operating brand
-     * @param message Outgoing SOAP response to be written with modified static content
-     */
-    @Override
-    public void validateBusinessRules(ValidateArrangementForPaymentRequest request, WebServiceMessage message) {
-        try {
-            logger.info("Starting business rule processing for operating brand: {}", request.getRequestHeader().getOperatingBrand());
-
-            InputStream xml = getClass().getClassLoader().getResourceAsStream("static-response/response1.xml");
-            if (xml == null) {
-                throw new SchemaValidationException("response1.xml not found in classpath");
-            }
-
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(xml);
-
-            XPath xpath = XPathFactory.newInstance().newXPath();
-
-            // Modify dynamic values
-            Node systemId = (Node) xpath.evaluate("//*[local-name()='responseId']/*[local-name()='systemId']", doc, XPathConstants.NODE);
-            if (systemId != null) {
-                systemId.setTextContent("ModifiedESP");
-                logger.debug("Updated systemId");
-            }
-
-            Node transactionId = (Node) xpath.evaluate("//*[local-name()='responseId']/*[local-name()='transactionId']", doc, XPathConstants.NODE);
-            if (transactionId != null) {
-                transactionId.setTextContent("ModifiedTxn123");
-                logger.debug("Updated transactionId");
-            }
-
-            // Write modified XML to SOAP response
-            ByteArrayOutputStream rawOutput = new ByteArrayOutputStream();
-            Transformer transformer = TransformerFactory.newInstance().newTransformer();
-            transformer.transform(new DOMSource(doc), new StreamResult(rawOutput));
-
-            SaajSoapMessage soapMessage = (SaajSoapMessage) message;
-            soapMessage.getSaajMessage().getSOAPPart().setContent(
-                new StreamSource(new ByteArrayInputStream(rawOutput.toByteArray()))
-            );
-
-            logger.info("SOAP response dynamically written from static XML template.");
-        } catch (Exception e) {
-            logger.error("Exception while processing business logic: {}", e.getMessage(), e);
-            throw new SchemaValidationException("Error processing response XML", e);
-        }
-    }
-}
-
-
---------/
-
-<dependency>
-    <groupId>org.mockito</groupId>
-    <artifactId>mockito-core</artifactId>
-    <version>5.7.0</version>
-    <scope>test</scope>
-</dependency>
-<dependency>
-    <groupId>org.springframework.ws</groupId>
-    <artifactId>spring-ws-core</artifactId>
-    <scope>test</scope>
-</dependency>
-<dependency>
-    <groupId>org.junit.jupiter</groupId>
-    <artifactId>junit-jupiter</artifactId>
-    <scope>test</scope>
-</dependency>
-
-
--------------
-package com.rbs.bdd.application.service;
-
-import com.rbs.bdd.application.exception.SchemaValidationException;
-import com.rbs.bdd.generated.ObjectFactory;
-import com.rbs.bdd.generated.RequestHeader;
-import com.rbs.bdd.generated.ValidateArrangementForPaymentRequest;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.ws.soap.saaj.SaajSoapMessage;
-import org.springframework.ws.WebServiceMessage;
-
-import javax.xml.soap.MessageFactory;
-import java.io.ByteArrayOutputStream;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class AccountValidationServiceTest {
-
-    private AccountValidationService service;
-
-    @BeforeEach
-    void setup() {
-        service = new AccountValidationService();
-    }
-
-    @Test
-    void shouldThrowExceptionIfXmlMissing() {
-        ValidateArrangementForPaymentRequest request = new ObjectFactory().createValidateArrangementForPaymentRequest();
-        WebServiceMessage mockMessage = createEmptySoapMessage();
-
-        assertThrows(SchemaValidationException.class, () ->
-            service.validateBusinessRules(request, mockMessage)
-        );
-    }
-
-    @Test
-    void shouldLogModifiedResponseSuccessfully() {
-        // Pre-load your response1.xml in test/resources/static-response
-        ValidateArrangementForPaymentRequest request = new ValidateArrangementForPaymentRequest();
-        RequestHeader header = new RequestHeader();
-        header.setOperatingBrand("ALL");
-        request.setRequestHeader(header);
-
-        WebServiceMessage message = createEmptySoapMessage();
-        assertDoesNotThrow(() -> service.validateBusinessRules(request, message));
-    }
-
-    private WebServiceMessage createEmptySoapMessage() {
-        try {
-            return new SaajSoapMessage(MessageFactory.newInstance().createMessage());
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to create test SOAP message", e);
-        }
-    }
-}
-
-
------------
-/**
- * Entry port for handling SOAP requests related to payment validation.
- * Follows hexagonal architecture's `port in` pattern.
- */
-public interface PaymentValidationPort {
-
-    /**
-     * Validates a payment arrangement request by delegating to the underlying orchestrator/service.
-     *
-     * @param request The SOAP request payload.
-     * @param message The outgoing WebServiceMessage to be modified and returned.
-     */
-    void validateArrangementForPayment(ValidateArrangementForPaymentRequest request, WebServiceMessage message);
-
-    // Future support: Retrieve customer functionality.
-}
-
-
----------
-
-/**
- * Defines the business contract for validating payment accounts.
- * Used by the orchestrator to call schema and business rule validators.
- */
-public interface AccountValidationPort {
-
-    /**
-     * Performs XSD schema validation of the request. (Currently delegated to Spring WS config.)
-     *
-     * @param request The SOAP request payload.
-     */
-    void validateSchema(ValidateArrangementForPaymentRequest request);
-
-    /**
-     * Applies business rules on the static response XML based on request content,
-     * and writes the final SOAP response directly to the output message.
-     *
-     * @param request The incoming SOAP request.
-     * @param message The WebServiceMessage to write the modified response to.
-     */
-    void validateBusinessRules(ValidateArrangementForPaymentRequest request, WebServiceMessage message);
-}
-
-
-----------
-
-/**
- * Service class responsible for orchestrating the validation flow of payment arrangement requests.
- * Implements {@link PaymentValidationPort} and delegates schema and business rule validation
- * to the appropriate output port.
- */
-@Service
-@RequiredArgsConstructor
-public class PaymentOrchestrator implements PaymentValidationPort {
-
-    private final AccountValidationPort accountValidationPort;
-
-    /**
-     * Entry point for handling the SOAP request. Validates schema and applies business rules.
-     *
-     * @param request the incoming SOAP request payload
-     * @param message the SOAP WebServiceMessage used to write the final response
-     */
-    @Override
-    public void validateArrangementForPayment(ValidateArrangementForPaymentRequest request, WebServiceMessage message) {
-        accountValidationPort.validateSchema(request); // automatic validation through interceptor
-        accountValidationPort.validateBusinessRules(request, message);
-    }
-}
-
-
-----------
-
-/**
- * Configuration class for setting up Spring WS infrastructure, including schema validation
- * and WSDL exposure. Implements {@link WsConfigurerAdapter}.
- */
-@Configuration
-@EnableWs
-public class SoapWebServiceConfig extends WsConfigurerAdapter {
-
-    /**
-     * Registers the Spring WS {@link MessageDispatcherServlet}.
-     *
-     * @param context Spring ApplicationContext
-     * @return ServletRegistrationBean for MessageDispatcherServlet
-     */
-    @Bean
-    public ServletRegistrationBean<MessageDispatcherServlet> messageDispatcherServlet(ApplicationContext context) {
-        MessageDispatcherServlet servlet = new MessageDispatcherServlet();
-        servlet.setApplicationContext(context);
-        servlet.setTransformWsdlLocations(true);
-        return new ServletRegistrationBean<>(servlet, "/ws/*");
-    }
-
-    /**
-     * Adds a schema validating interceptor to validate all incoming requests.
-     *
-     * @param interceptors list of Spring WS endpoint interceptors
-     */
-    @Override
-    public void addInterceptors(List<EndpointInterceptor> interceptors) {
-        PayloadValidatingInterceptor validatingInterceptor = new PayloadValidatingInterceptor();
-        validatingInterceptor.setValidateRequest(true);
-        validatingInterceptor.setValidateResponse(false);
-        try {
-            validatingInterceptor.setXsdSchemaCollection(updateContactXsd());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        interceptors.add(validatingInterceptor);
-    }
-
-    /**
-     * Publishes the WSDL based on the XSD schema.
-     *
-     * @return DefaultWsdl11Definition for WSDL exposure
-     * @throws Exception if schema loading fails
-     */
-    @Bean(name = "ArrValidationForPaymentParameters")
-    public DefaultWsdl11Definition defaultWsdl11Definition() throws Exception {
-        DefaultWsdl11Definition wsdl11Definition = new DefaultWsdl11Definition();
-        wsdl11Definition.setPortTypeName("IArrValidationForPayment");
-        wsdl11Definition.setLocationUri("/ws");
-        wsdl11Definition.setTargetNamespace("http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/");
-        wsdl11Definition.setSchemaCollection(updateContactXsd());
-        return wsdl11Definition;
-    }
-
-    /**
-     * Loads and inlines the XSD schema used for validating SOAP requests.
-     *
-     * @return XsdSchemaCollection of all relevant XSDs
-     * @throws Exception if schema loading fails
-     */
-    @Bean
-    public XsdSchemaCollection updateContactXsd() throws Exception {
-        CommonsXsdSchemaCollection xsd = new CommonsXsdSchemaCollection(
-                new ClassPathResource("xsd/ArrValidationForPaymentParameters.xsd")
-        );
-        xsd.setInline(true);
-        return xsd;
-    }
-}
-
-
-
-------/--
 
 /**
  * SOAP endpoint adapter class for handling the `validateArrangementForPayment` operation.
@@ -334,8 +312,10 @@ public class SoapWebServiceConfig extends WsConfigurerAdapter {
 @Endpoint
 public class PaymentValidationSoapAdapter {
 
-    private static final String NAMESPACE_URI = "http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/";
+    /**Changes for the request*/
+   // private static final String NAMESPACE_URI = "http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01/";
 
+    private static final String NAMESPACE_URI = "http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/";
     private final PaymentValidationPort paymentValidationPort;
 
     /**
@@ -357,21 +337,49 @@ public class PaymentValidationSoapAdapter {
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "validateArrangementForPayment")
     @ResponsePayload
     public void validateArrangementForPayment(@RequestPayload ValidateArrangementForPaymentRequest request,
-                                              MessageContext context) {
+                                                MessageContext context) {
+
         WebServiceMessage response = context.getResponse();
         paymentValidationPort.validateArrangementForPayment(request, response);
-    }
+         }
+
 }
 
-------------
 
 
+----------------------------------
 
 
+Erorr getting :-
 
-
-
-
-
-
-
+[ERROR] /F:/NatWest_Code/ESP/bdd-ms-esp-simulation-service/bdd-ms-esp-simulation-service/src/main/java/com/rbs/bdd/infrastructure/config/SoapWebServiceConfig.java:[56,38] cannot find symbol
+[ERROR]   symbol:   class EndpointInterceptor
+[ERROR]   location: class com.rbs.bdd.infrastructure.config.SoapWebServiceConfig
+[ERROR] /F:/NatWest_Code/ESP/bdd-ms-esp-simulation-service/bdd-ms-esp-simulation-service/src/main/java/com/rbs/bdd/infrastructure/config/SoapWebServiceConfig.java:[76,12] cannot find symbol
+[ERROR]   symbol:   class DefaultWsdl11Definition
+[ERROR]   location: class com.rbs.bdd.infrastructure.config.SoapWebServiceConfig
+[ERROR] /F:/NatWest_Code/ESP/bdd-ms-esp-simulation-service/bdd-ms-esp-simulation-service/src/main/java/com/rbs/bdd/infrastructure/soap/api/PaymentValidationSoapAdapter.java:[8,30] package org.springframework.ws does not exist
+[ERROR] /F:/NatWest_Code/ESP/bdd-ms-esp-simulation-service/bdd-ms-esp-simulation-service/src/main/java/com/rbs/bdd/infrastructure/soap/api/PaymentValidationSoapAdapter.java:[9,38] package org.springframework.ws.context does not exist
+[ERROR] /F:/NatWest_Code/ESP/bdd-ms-esp-simulation-service/bdd-ms-esp-simulation-service/src/main/java/com/rbs/bdd/infrastructure/soap/api/PaymentValidationSoapAdapter.java:[10,57] package org.springframework.ws.server.endpoint.annotation does not exist
+[ERROR] /F:/NatWest_Code/ESP/bdd-ms-esp-simulation-service/bdd-ms-esp-simulation-service/src/main/java/com/rbs/bdd/infrastructure/soap/api/PaymentValidationSoapAdapter.java:[11,57] package org.springframework.ws.server.endpoint.annotation does not exist
+[ERROR] /F:/NatWest_Code/ESP/bdd-ms-esp-simulation-service/bdd-ms-esp-simulation-service/src/main/java/com/rbs/bdd/infrastructure/soap/api/PaymentValidationSoapAdapter.java:[12,57] package org.springframework.ws.server.endpoint.annotation does not exist
+[ERROR] /F:/NatWest_Code/ESP/bdd-ms-esp-simulation-service/bdd-ms-esp-simulation-service/src/main/java/com/rbs/bdd/infrastructure/soap/api/PaymentValidationSoapAdapter.java:[13,57] package org.springframework.ws.server.endpoint.annotation does not exist
+[ERROR] /F:/NatWest_Code/ESP/bdd-ms-esp-simulation-service/bdd-ms-esp-simulation-service/src/main/java/com/rbs/bdd/infrastructure/soap/api/PaymentValidationSoapAdapter.java:[20,2] cannot find symbol
+[ERROR]   symbol: class Endpoint
+[ERROR] /F:/NatWest_Code/ESP/bdd-ms-esp-simulation-service/bdd-ms-esp-simulation-service/src/main/java/com/rbs/bdd/infrastructure/soap/api/PaymentValidationSoapAdapter.java:[48,49] cannot find symbol
+[ERROR]   symbol:   class MessageContext
+[ERROR]   location: class com.rbs.bdd.infrastructure.soap.api.PaymentValidationSoapAdapter
+[ERROR] /F:/NatWest_Code/ESP/bdd-ms-esp-simulation-service/bdd-ms-esp-simulation-service/src/main/java/com/rbs/bdd/infrastructure/soap/api/PaymentValidationSoapAdapter.java:[47,48] cannot find symbol
+[ERROR]   symbol:   class RequestPayload
+[ERROR]   location: class com.rbs.bdd.infrastructure.soap.api.PaymentValidationSoapAdapter
+[ERROR] /F:/NatWest_Code/ESP/bdd-ms-esp-simulation-service/bdd-ms-esp-simulation-service/src/main/java/com/rbs/bdd/infrastructure/soap/api/PaymentValidationSoapAdapter.java:[45,6] cannot find symbol
+[ERROR]   symbol:   class PayloadRoot
+[ERROR]   location: class com.rbs.bdd.infrastructure.soap.api.PaymentValidationSoapAdapter
+[ERROR] /F:/NatWest_Code/ESP/bdd-ms-esp-simulation-service/bdd-ms-esp-simulation-service/src/main/java/com/rbs/bdd/infrastructure/soap/api/PaymentValidationSoapAdapter.java:[46,6] cannot find symbol
+[ERROR]   symbol:   class ResponsePayload
+[ERROR]   location: class com.rbs.bdd.infrastructure.soap.api.PaymentValidationSoapAdapter
+[ERROR] -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
