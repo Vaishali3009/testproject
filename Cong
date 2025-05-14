@@ -1,3 +1,216 @@
+package com.rbs.bdd.application.port.in;
+
+import com.rbs.bdd.generated.ValidateArrangementForPaymentRequest;
+import com.rbs.bdd.generated.ValidateArrangementForPaymentResponse;
+import org.springframework.ws.WebServiceMessage;
+
+import javax.xml.transform.Source;
+
+public interface PaymentValidationPort {
+
+
+    //Approach 1
+    void validateArrangementForPayment(ValidateArrangementForPaymentRequest request,WebServiceMessage meesage);
+
+    // CustomerEnrichmentResponse retrieveCustomer(CustomerEnrichmentRequest request);
+
+}
+
+
+---------------------------------------------------
+
+
+package com.rbs.bdd.application.port.out;
+
+import com.rbs.bdd.generated.ValidateArrangementForPaymentRequest;
+import org.springframework.ws.WebServiceMessage;
+
+import javax.xml.transform.Source;
+
+public interface AccountValidationPort {
+    void validateSchema(ValidateArrangementForPaymentRequest request);
+
+    //Approach 1
+    void validateBusinessRules(ValidateArrangementForPaymentRequest request,WebServiceMessage message);
+
+     }
+
+
+--------------------------------------------------------------
+
+
+package com.rbs.bdd.application.service;
+
+
+import com.rbs.bdd.application.exception.SchemaValidationException;
+import com.rbs.bdd.application.port.out.AccountValidationPort;
+import com.rbs.bdd.generated.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.ws.WebServiceMessage;
+import org.springframework.ws.soap.saaj.SaajSoapMessage;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.lang.Exception;
+
+@Service
+@RequiredArgsConstructor
+public class AccountValidationService implements AccountValidationPort {
+
+    @Override
+    public void validateSchema(ValidateArrangementForPaymentRequest request) {
+        // Schema is validated automatically by Spring WS
+        System.out.println("Schema Validation ");
+    }
+
+    //Approach 1
+        @Override
+        public void validateBusinessRules(ValidateArrangementForPaymentRequest request, WebServiceMessage message) {
+            try {
+                InputStream xml = getClass().getClassLoader().getResourceAsStream("static-response/response1.xml");
+                if (xml == null) {
+                    throw new SchemaValidationException("response1.xml not found in classpath");
+                }
+
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                factory.setNamespaceAware(true);
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                Document doc = builder.parse(xml);
+
+                XPath xpath = XPathFactory.newInstance().newXPath();
+
+                // Update systemId
+                Node systemId = (Node) xpath.evaluate(
+                        "//*[local-name()='responseId']/*[local-name()='systemId']", doc, XPathConstants.NODE);
+                if (systemId != null) systemId.setTextContent("ModifiedESP");
+
+                // Update transactionId
+                Node transactionId = (Node) xpath.evaluate(
+                        "//*[local-name()='responseId']/*[local-name()='transactionId']", doc, XPathConstants.NODE);
+                if (transactionId != null) transactionId.setTextContent("ModifiedTxn123");
+
+                ByteArrayOutputStream rawOutput= new ByteArrayOutputStream();
+                Transformer transformer = TransformerFactory.newInstance().newTransformer();
+                transformer.transform(new DOMSource(doc),new StreamResult(rawOutput));
+
+
+                SaajSoapMessage soapMessage= (SaajSoapMessage) message;
+                soapMessage.getSaajMessage().getSOAPPart().setContent(
+                        new StreamSource(new ByteArrayInputStream(rawOutput.toByteArray()))
+                );
+
+            } catch (Exception e) {
+                throw new SchemaValidationException("Error processing response XML", e);
+            }
+        }
+    }
+
+
+
+------------------------------------------------------
+
+
+package com.rbs.bdd.application.service;
+
+import com.rbs.bdd.application.port.out.AccountValidationPort;
+import com.rbs.bdd.application.port.in.PaymentValidationPort;
+import com.rbs.bdd.generated.ValidateArrangementForPaymentRequest;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.ws.WebServiceMessage;
+
+@Service
+@RequiredArgsConstructor
+public class PaymentOrchestrator implements PaymentValidationPort {
+
+    private final AccountValidationPort accountValidationPort;
+
+
+     /* private final CustomerRetrievalService customerRetrievalService;
+
+   @Override
+    public RetrieveCustomerResponse retrieveCustomer(RetrieveCustomerRequest request) {
+        return customerRetrievalService.retrieveCustomer(request);
+    }*/
+    
+    @Override
+    public void validateArrangementForPayment(ValidateArrangementForPaymentRequest request,WebServiceMessage message) {
+        accountValidationPort.validateSchema(request);
+         accountValidationPort.validateBusinessRules(request,message);
+    }
+
+}
+
+
+-----------------------------------------------------
+
+
+package com.rbs.bdd.infrastructure.config;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.ws.context.MessageContext;
+import org.springframework.ws.server.EndpointInterceptor;
+
+import java.io.ByteArrayOutputStream;
+
+public class SoapLoggingInterceptor implements EndpointInterceptor {
+
+    private static final Logger logger = LoggerFactory.getLogger(SoapLoggingInterceptor.class);
+
+    @Override
+    public boolean handleRequest(MessageContext messageContext, Object endpoint) {
+        logMessage("SOAP Request", messageContext.getRequest());
+        return true;
+    }
+
+    @Override
+    public boolean handleResponse(MessageContext messageContext, Object endpoint) {
+        logMessage("SOAP Response", messageContext.getResponse());
+        return true;
+    }
+
+    @Override
+    public boolean handleFault(MessageContext messageContext, Object endpoint) {
+        logMessage("SOAP Fault", messageContext.getResponse());
+        return true;
+    }
+
+    @Override
+    public void afterCompletion(MessageContext messageContext, Object endpoint, Exception ex) {
+        // No action needed
+    }
+
+    private void logMessage(String type, org.springframework.ws.WebServiceMessage message) {
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            message.writeTo(out);
+            logger.info("{}:\n{}", type, out.toString());
+        } catch (Exception e) {
+            logger.error("Error logging {} message: {}", type, e.getMessage());
+        }
+    }
+}
+
+
+-----------------------------------------
+
+
 package com.rbs.bdd.infrastructure.config;
 
 import ch.qos.logback.core.CoreConstants;
@@ -67,7 +280,6 @@ public class SoapWebServiceConfig extends WsConfigurerAdapter {
         wsdl11Definition.setLocationUri("/ws");
        // wsdl11Definition.setTargetNamespace("http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01/");
         wsdl11Definition.setTargetNamespace("http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/");
-
         wsdl11Definition.setSchemaCollection(updateContactXsd());
         return wsdl11Definition;
     }
@@ -81,7 +293,7 @@ public class SoapWebServiceConfig extends WsConfigurerAdapter {
 }
 
 
---------------------------------------------------
+---------------------------------------------
 
 
 package com.rbs.bdd.infrastructure.soap.api;
@@ -132,50 +344,4 @@ public class PaymentValidationSoapAdapter {
          }
 
 }
-
-
-
-------------------------------------------------------------------------------------
-<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01/" version="RBS_20210526_Baseline" xmlns:avfpSP="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/ServiceParameters/V01/" xmlns:avfpTO="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/TransferObjects/V01/" xmlns:pdt="http://com/rbsg/soa/DataTypes/PrimitiveDataTypes/V03/" xmlns:sdef="http://com/rbsg/soa/Services/Definitions/V03/">
-  <xsd:import namespace="http://com/rbsg/soa/C040PaymentManagement/ArrValidationForPayment/V01/TransferObjects/V01/" schemaLocation="ArrValidationForPaymentTransferObjects.xsd"/>
-  <xsd:import namespace="http://com/rbsg/soa/DataTypes/PrimitiveDataTypes/V03/" schemaLocation="PrimitiveDatatypes.xsd"/>
-  <xsd:import namespace="http://com/rbsg/soa/Services/Definitions/V03/" schemaLocation="ServiceDefinitions.xsd"/>
-  <xsd:complexType name="validateArrangementForPaymentRequest">
-    <xsd:sequence>
-      <xsd:element name="requestHeader" type="sdef:RequestHeader"/>
-      <xsd:element name="arrangementIdentifier" type="pdt:ObjectReference">
-        <xsd:annotation>
-          <xsd:documentation>The identifier for the arrangement being validated, a variety of formats are supported by the service.</xsd:documentation>
-        </xsd:annotation>
-      </xsd:element>
-      <xsd:element maxOccurs="unbounded" minOccurs="0" name="processingParameter" type="pdt:Property">
-        <xsd:annotation>
-          <xsd:documentation>Optional parameter used to satisfy any consumer driven technical provider requirements</xsd:documentation>
-        </xsd:annotation>
-      </xsd:element>
-    </xsd:sequence>
-  </xsd:complexType>
-  <xsd:complexType name="ValidateArrangementForPaymentContent">
-    <xsd:sequence>
-      <xsd:element name="responseHeader" type="sdef:ResponseHeader"/>
-      <xsd:element minOccurs="0" name="validatedArrangement" type="avfpTO:ProductArrangement_TO">
-        <xsd:annotation>
-          <xsd:documentation>Details of the arrangement being validated by the service</xsd:documentation>
-        </xsd:annotation>
-      </xsd:element>
-    </xsd:sequence>
-  </xsd:complexType>
-  <xsd:complexType name="validateArrangementForPaymentResponse">
-    <xsd:sequence>
-      <xsd:choice>
-        <xsd:element name="response" type="avfpSP:ValidateArrangementForPaymentContent"/>
-        <xsd:element name="exception" type="sdef:Exception"/>
-      </xsd:choice>
-    </xsd:sequence>
-  </xsd:complexType>
-  <!-- Global elements required for WSDL operation binding -->
-  <xsd:element name="validateArrangementForPayment" type="avfpSP:validateArrangementForPaymentRequest"/>
-  <xsd:element name="validateArrangementForPaymentResponse" type="avfpSP:validateArrangementForPaymentResponse"/>
-
-</xsd:schema>
 
